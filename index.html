@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Insecurity Data Collection Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="app">
+  <header id="header">
+    <div id="brand">
+      <span id="brand-dot"></span>
+      <div>
+        <h1>Water Insecurity Data Collection</h1>
+        <p id="subtitle">Where WISE data has been collected, by country</p>
+      </div>
+    </div>
+    <div id="stats"></div>
+  </header>
+
+  <div id="map-wrap">
+    <aside id="filter-panel">
+      <div class="filter-title">See on map</div>
+      <button class="chip active" data-filter="all">All countries</button>
+      <button class="chip" data-filter="completed">Completed</button>
+      <button class="chip" data-filter="planned">Planned</button>
+      <button class="chip" data-filter="mixed">Mixed</button>
+      <label class="chip-toggle">
+        <input type="checkbox" id="rep-only">
+        Nationally representative only
+      </label>
+    </aside>
+
+    <button id="expand-btn" title="Open in new tab">⤢</button>
+
+    <div id="map"></div>
+
+    <div id="detail-card" class="hidden">
+      <button id="detail-close" aria-label="Close">×</button>
+      <div id="detail-content"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
