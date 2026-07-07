@@ -173,8 +173,17 @@ def main():
     out_path = ROOT / "data" / "countries.json"
     out_path.write_text(json.dumps(countries, indent=2, ensure_ascii=False))
 
+    # Also emit a script version so index.html works when opened directly
+    # from the filesystem (fetch() is blocked on file:// pages).
+    js_path = ROOT / "data" / "countries.js"
+    js_path.write_text(
+        "window.WISE_COUNTRIES = "
+        + json.dumps(countries, ensure_ascii=False)
+        + ";\n"
+    )
+
     total_entries = len(site_rows) + len(national_rows)
-    print(f"Wrote {len(countries)} countries ({total_entries} entries) to {out_path}")
+    print(f"Wrote {len(countries)} countries ({total_entries} entries) to {out_path} and {js_path}")
     unmatched = site_unmatched | national_unmatched
     if unmatched:
         print("WARNING: unmatched country names (add to COUNTRY_ALIASES):")

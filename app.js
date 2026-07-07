@@ -140,17 +140,17 @@
     renderMarkers();
   });
 
-  fetch("data/countries.json")
-    .then((res) => res.json())
-    .then((data) => {
-      countries = data.filter((c) => typeof c.lat === "number" && typeof c.lng === "number");
-      updateStats();
-      renderMarkers();
-      const bounds = L.latLngBounds(countries.map((c) => [c.lat, c.lng]));
-      map.fitBounds(bounds, { padding: [40, 40] });
-    })
-    .catch((err) => {
-      statsEl.textContent = "Failed to load data";
-      console.error(err);
-    });
+  // Data is loaded via a <script> tag (data/countries.js) rather than fetch()
+  // so the page also works when opened directly from the filesystem (file://).
+  const data = window.WISE_COUNTRIES;
+  if (!Array.isArray(data)) {
+    statsEl.textContent = "Failed to load data";
+    console.error("data/countries.js did not load");
+  } else {
+    countries = data.filter((c) => typeof c.lat === "number" && typeof c.lng === "number");
+    updateStats();
+    renderMarkers();
+    const bounds = L.latLngBounds(countries.map((c) => [c.lat, c.lng]));
+    map.fitBounds(bounds, { padding: [40, 40] });
+  }
 })();
