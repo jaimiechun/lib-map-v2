@@ -31,6 +31,8 @@
   let markers = [];
   let activeStatusFilter = "all";
   let repOnly = false;
+  let selectedTools = new Set();
+  let allTools = [];
 
   function radiusFor(entryCount) {
     return Math.min(6 + Math.sqrt(entryCount) * 3, 20);
@@ -58,10 +60,19 @@
     return layers;
   }
 
+  // A country passes if at least one of its entries matches the active
+  // status and the checked tools, so countries with both completed and
+  // planned work show up under either status filter.
+  function entryMatchesFilter(entry) {
+    if (activeStatusFilter === "completed" && entry.status !== "Completed") return false;
+    if (activeStatusFilter === "planned" && entry.status !== "Planned") return false;
+    if (selectedTools.size && !selectedTools.has(entry.tool)) return false;
+    return true;
+  }
+
   function passesFilter(country) {
     if (repOnly && !country.nationallyRepresentative) return false;
-    if (activeStatusFilter === "all") return true;
-    return country.status === activeStatusFilter;
+    return country.entries.some(entryMatchesFilter);
   }
 
   function renderMarkers() {
@@ -126,11 +137,42 @@
     statsEl.innerHTML = `<span><b>${total}</b> countries</span><span><b>${completed}</b> completed</span><span><b>${planned}</b> planned only</span>`;
   }
 
-  document.querySelectorAll(".chip[data-filter]").forEach((chip) => {
+  function renderToolList(group) {
+    const list = group.querySelector(".tool-list");
+    list.innerHTML = allTools
+      .map(
+        (tool) => `
+        <label class="tool-option">
+          <input type="checkbox" value="${tool}" ${selectedTools.has(tool) ? "checked" : ""}>
+          ${tool}
+        </label>`
+      )
+      .join("");
+    list.querySelectorAll("input").forEach((box) => {
+      box.addEventListener("change", () => {
+        if (box.checked) selectedTools.add(box.value);
+        else selectedTools.delete(box.value);
+        renderMarkers();
+      });
+    });
+  }
+
+  document.querySelectorAll(".filter-group").forEach((group) => {
+    const chip = group.querySelector(".chip");
     chip.addEventListener("click", () => {
-      document.querySelectorAll(".chip[data-filter]").forEach((c) => c.classList.remove("active"));
+      const wasActive = group.classList.contains("open");
+      document.querySelectorAll(".filter-group").forEach((g) => {
+        g.classList.remove("open");
+        g.querySelector(".chip").classList.remove("active");
+        g.querySelector(".tool-list").innerHTML = "";
+      });
       chip.classList.add("active");
-      activeStatusFilter = chip.dataset.filter;
+      if (activeStatusFilter !== group.dataset.filter) selectedTools.clear();
+      activeStatusFilter = group.dataset.filter;
+      if (!wasActive) {
+        group.classList.add("open");
+        renderToolList(group);
+      }
       renderMarkers();
     });
   });
@@ -148,6 +190,7 @@
     console.error("data/countries.js did not load");
   } else {
     countries = data.filter((c) => typeof c.lat === "number" && typeof c.lng === "number");
+    allTools = [...new Set(countries.flatMap((c) => c.entries.map((e) => e.tool)).filter(Boolean))].sort();
     updateStats();
     renderMarkers();
     const bounds = L.latLngBounds(countries.map((c) => [c.lat, c.lng]));
