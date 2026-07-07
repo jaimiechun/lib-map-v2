@@ -103,7 +103,11 @@
     if (entry.source) metaParts.push(entry.source);
     if (entry.dates) metaParts.push(entry.dates);
     const links = [];
-    if (entry.link) links.push(`<a href="${entry.link}" target="_blank" rel="noopener">More info ↗</a>`);
+    if (entry.link) {
+      links.push(
+        `<a class="info-btn" href="${entry.link}" target="_blank" rel="noopener"><span>More info</span><span class="info-btn-arrow">↗</span></a>`
+      );
+    }
     if (entry.contact) links.push(`<a href="mailto:${entry.contact}">${entry.contact}</a>`);
 
     return `
