@@ -1,7 +1,6 @@
 :root {
-  --green: #2fae5f;
-  --amber: #e8a53d;
-  --purple: #7a5cf0;
+  --teal: #0e7c7b;
+  --teal-light: rgba(14, 124, 123, 0.35);
   --ink: #1c2430;
   --muted: #6b7685;
   --panel-bg: rgba(255, 255, 255, 0.96);
@@ -46,7 +45,7 @@ html, body {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--green);
+  background: var(--teal);
   flex-shrink: 0;
 }
 
@@ -159,15 +158,7 @@ html, body {
 
 #expand-btn:hover { background: #fff; }
 
-/* Markers */
-.wise-marker {
-  border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.35);
-}
-.wise-marker.completed { background: var(--green); }
-.wise-marker.planned { background: var(--amber); }
-.wise-marker.mixed { background: var(--purple); }
+/* Markers: solid teal = completed, translucent teal = planned (color/opacity set in app.js) */
 
 /* Detail card */
 #detail-card {
@@ -235,9 +226,9 @@ html, body {
   border-radius: 999px;
   color: #fff;
 }
-.badge.completed { background: var(--green); }
-.badge.planned { background: var(--amber); }
-.badge.ongoing { background: var(--purple); }
+.badge.completed { background: var(--teal); }
+.badge.planned { background: var(--teal-light); color: var(--teal); }
+.badge.ongoing { background: #fff; color: var(--teal); border: 1px solid var(--teal); }
 .badge.tool { background: var(--ink); }
 .badge.rep { background: #fff; color: var(--ink); border: 1px solid var(--border); }
 

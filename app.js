@@ -1,5 +1,6 @@
 (function () {
-  const STATUS_LABEL = { completed: "Completed", planned: "Planned", mixed: "Mixed" };
+  const STATUS_LABEL = { completed: "Completed", planned: "Planned", mixed: "In progress" };
+  const TEAL = "#0e7c7b";
 
   const map = L.map("map", {
     worldCopyJump: true,
@@ -35,23 +36,26 @@
     return Math.min(6 + Math.sqrt(entryCount) * 3, 20);
   }
 
-  function markerFor(country) {
-    const marker = L.circleMarker([country.lat, country.lng], {
-      radius: radiusFor(country.entries.length),
-      className: "wise-marker " + country.status,
-      weight: 2,
-      color: "#fff",
-      fillOpacity: 0.9,
-      fillColor: colorFor(country.status),
-    });
-    marker.on("click", () => showDetail(country));
-    return marker;
-  }
-
-  function colorFor(status) {
-    if (status === "completed") return "#2fae5f";
-    if (status === "planned") return "#e8a53d";
-    return "#7a5cf0";
+  // Single teal hue: completed = solid, planned = translucent.
+  // Mixed countries get a solid core plus a translucent halo (both at once).
+  function markersFor(country) {
+    const radius = radiusFor(country.entries.length);
+    const base = {
+      className: "wise-marker",
+      weight: 0,
+      fillColor: TEAL,
+    };
+    const layers = [];
+    if (country.status === "completed") {
+      layers.push(L.circleMarker([country.lat, country.lng], { ...base, radius, fillOpacity: 1 }));
+    } else if (country.status === "planned") {
+      layers.push(L.circleMarker([country.lat, country.lng], { ...base, radius, fillOpacity: 0.35 }));
+    } else {
+      layers.push(L.circleMarker([country.lat, country.lng], { ...base, radius: radius * 1.6, fillOpacity: 0.3 }));
+      layers.push(L.circleMarker([country.lat, country.lng], { ...base, radius: radius * 0.75, fillOpacity: 1 }));
+    }
+    layers.forEach((l) => l.on("click", () => showDetail(country)));
+    return layers;
   }
 
   function passesFilter(country) {
@@ -64,9 +68,10 @@
     markers.forEach((m) => map.removeLayer(m));
     markers = [];
     countries.filter(passesFilter).forEach((country) => {
-      const marker = markerFor(country);
-      marker.addTo(map);
-      markers.push(marker);
+      markersFor(country).forEach((marker) => {
+        marker.addTo(map);
+        markers.push(marker);
+      });
     });
   }
 
