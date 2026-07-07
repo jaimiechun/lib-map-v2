@@ -23,13 +23,21 @@
   <div id="map-wrap">
     <aside id="filter-panel">
       <div class="filter-title">See on map</div>
-      <button class="chip active" data-filter="all">All countries</button>
-      <button class="chip" data-filter="completed">Completed</button>
-      <button class="chip" data-filter="planned">Planned</button>
-      <button class="chip" data-filter="mixed">In progress</button>
+      <div class="filter-group" data-filter="all">
+        <button class="chip active">All Countries <span class="chev">&#9662;</span></button>
+        <div class="tool-list"></div>
+      </div>
+      <div class="filter-group" data-filter="completed">
+        <button class="chip">Completed <span class="chev">&#9662;</span></button>
+        <div class="tool-list"></div>
+      </div>
+      <div class="filter-group" data-filter="planned">
+        <button class="chip">Planned <span class="chev">&#9662;</span></button>
+        <div class="tool-list"></div>
+      </div>
       <label class="chip-toggle">
         <input type="checkbox" id="rep-only">
-        Nationally representative only
+        Nationally Representative Data
       </label>
     </aside>
 
