@@ -1,6 +1,7 @@
 (function () {
   const STATUS_LABEL = { completed: "Completed", planned: "Planned", mixed: "In progress" };
   const TEAL = "#0e7c7b";
+  const REP_FILL = "#CB7AA5";
 
   const map = L.map("map", {
     worldCopyJump: true,
@@ -29,6 +30,7 @@
 
   let countries = [];
   let markers = [];
+  let borderLayer = null;
   let activeStatusFilter = "all";
   let repOnly = false;
   let selectedTools = new Set();
@@ -75,7 +77,36 @@
     return country.entries.some(entryMatchesFilter);
   }
 
+  // Countries with nationally representative data get their whole territory
+  // shaded. Follows the active filters, and sits under the circle markers.
+  function renderBorders() {
+    if (borderLayer) {
+      map.removeLayer(borderLayer);
+      borderLayer = null;
+    }
+    if (!window.WISE_BORDERS) return;
+    const byIso3 = new Map(countries.map((c) => [c.iso3, c]));
+    const visible = new Set(
+      countries.filter((c) => c.nationallyRepresentative && passesFilter(c)).map((c) => c.iso3)
+    );
+    borderLayer = L.geoJSON(window.WISE_BORDERS, {
+      filter: (feature) => visible.has(feature.id),
+      style: {
+        fillColor: REP_FILL,
+        fillOpacity: 0.35,
+        color: REP_FILL,
+        weight: 1,
+        opacity: 0.6,
+      },
+      onEachFeature: (feature, layer) => {
+        const country = byIso3.get(feature.id);
+        if (country) layer.on("click", () => showDetail(country));
+      },
+    }).addTo(map);
+  }
+
   function renderMarkers() {
+    renderBorders();
     markers.forEach((m) => map.removeLayer(m));
     markers = [];
     countries.filter(passesFilter).forEach((country) => {
