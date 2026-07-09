@@ -32,7 +32,7 @@
   let markers = [];
   let borderLayer = null;
   let activeStatusFilter = "all";
-  let repOnly = false;
+  let showRepShading = true;
   let selectedTools = new Set();
   let allTools = [];
 
@@ -73,7 +73,6 @@
   }
 
   function passesFilter(country) {
-    if (repOnly && !country.nationallyRepresentative) return false;
     return country.entries.some(entryMatchesFilter);
   }
 
@@ -84,7 +83,7 @@
       map.removeLayer(borderLayer);
       borderLayer = null;
     }
-    if (!window.WISE_BORDERS) return;
+    if (!showRepShading || !window.WISE_BORDERS) return;
     const byIso3 = new Map(countries.map((c) => [c.iso3, c]));
     const visible = new Set(
       countries.filter((c) => c.nationallyRepresentative && passesFilter(c)).map((c) => c.iso3)
@@ -103,6 +102,7 @@
         if (country) layer.on("click", () => showDetail(country));
       },
     }).addTo(map);
+    borderLayer.bringToBack();
   }
 
   function renderMarkers() {
@@ -212,9 +212,9 @@
     });
   });
 
-  document.getElementById("rep-only").addEventListener("change", (e) => {
-    repOnly = e.target.checked;
-    renderMarkers();
+  document.getElementById("rep-shading").addEventListener("change", (e) => {
+    showRepShading = e.target.checked;
+    renderBorders();
   });
 
   // Data is loaded via a <script> tag (data/countries.js) rather than fetch()
