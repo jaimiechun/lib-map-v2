@@ -31,6 +31,12 @@ def main():
     js_path = DATA / "borders.js"
     js_path.write_text("window.WISE_BORDERS = " + json.dumps(out) + ";\n")
 
+    # Full world landmass, drawn as the basemap (no raster tiles).
+    world = json.loads((DATA / "raw" / "world_borders.geo.json").read_text())
+    world_path = DATA / "world.js"
+    world_path.write_text("window.WISE_WORLD = " + json.dumps(world) + ";\n")
+    print(f"Wrote {len(world['features'])} world landmass features to {world_path}")
+
     missing = sorted(rep_iso3 - features.keys())
     print(f"Wrote {len(features)} country borders to {js_path}")
     if missing:
