@@ -139,17 +139,17 @@ html, body {
   height: 38px;
   border-radius: 50%;
   border: none;
-  background: #2b2523;
-  color: #fff;
+  background: #cdeade;
+  color: var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(20, 30, 40, 0.3);
+  box-shadow: 0 4px 12px rgba(20, 30, 40, 0.18);
   transition: background 0.15s;
 }
 
-#search-btn:hover { background: #443c39; }
+#search-btn:hover { background: #bfe3d3; }
 
 #search-results {
   position: absolute;
