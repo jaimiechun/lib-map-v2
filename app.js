@@ -303,6 +303,10 @@
       if (first) first.click();
     }
   });
+  document.getElementById("search-btn").addEventListener("click", () => {
+    runSearch(searchInput.value);
+    searchInput.focus();
+  });
   document.addEventListener("click", (e) => {
     if (!e.target.closest("#search-wrap")) searchResults.classList.add("hidden");
   });
