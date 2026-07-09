@@ -223,6 +223,90 @@
     });
   });
 
+  // --- Search: country names, plus contacts/sources ("who is involved") ---
+  const searchInput = document.getElementById("search-input");
+  const searchResults = document.getElementById("search-results");
+
+  function focusCountry(country) {
+    map.setView([country.lat, country.lng], 5);
+    showDetail(country);
+    searchResults.classList.add("hidden");
+    searchInput.value = "";
+  }
+
+  function resultButton(label, sub, country) {
+    const btn = document.createElement("button");
+    btn.className = "search-result";
+    btn.innerHTML = `${label}${sub ? `<span class="result-sub">${sub}</span>` : ""}`;
+    btn.addEventListener("click", () => focusCountry(country));
+    return btn;
+  }
+
+  function runSearch(query) {
+    const q = query.trim().toLowerCase();
+    searchResults.innerHTML = "";
+    if (q.length < 2) {
+      searchResults.classList.add("hidden");
+      return;
+    }
+
+    // A previously opened card would cover the results dropdown.
+    detailCard.classList.add("hidden");
+
+    const countryHits = countries.filter((c) => c.name.toLowerCase().includes(q)).slice(0, 8);
+
+    // People/organizations: match against contact emails and survey sources.
+    const personHits = [];
+    const seen = new Set();
+    countries.forEach((c) => {
+      c.entries.forEach((e) => {
+        [e.contact, e.source].forEach((field) => {
+          if (!field || !field.toLowerCase().includes(q)) return;
+          const key = field + "|" + c.iso3;
+          if (seen.has(key)) return;
+          seen.add(key);
+          personHits.push({ field, country: c });
+        });
+      });
+    });
+
+    if (countryHits.length) {
+      const title = document.createElement("div");
+      title.className = "search-group-title";
+      title.textContent = "Countries";
+      searchResults.appendChild(title);
+      countryHits.forEach((c) => searchResults.appendChild(resultButton(c.name, null, c)));
+    }
+    if (personHits.length) {
+      const title = document.createElement("div");
+      title.className = "search-group-title";
+      title.textContent = "Contacts & sources";
+      searchResults.appendChild(title);
+      personHits.slice(0, 10).forEach(({ field, country }) => {
+        searchResults.appendChild(resultButton(country.name, field, country));
+      });
+    }
+    if (!countryHits.length && !personHits.length) {
+      const empty = document.createElement("div");
+      empty.className = "search-empty";
+      empty.textContent = "No matches";
+      searchResults.appendChild(empty);
+    }
+    searchResults.classList.remove("hidden");
+  }
+
+  searchInput.addEventListener("input", (e) => runSearch(e.target.value));
+  searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") searchResults.classList.add("hidden");
+    if (e.key === "Enter") {
+      const first = searchResults.querySelector(".search-result");
+      if (first) first.click();
+    }
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#search-wrap")) searchResults.classList.add("hidden");
+  });
+
   document.getElementById("rep-shading").addEventListener("change", (e) => {
     showRepShading = e.target.checked;
     renderBorders();
