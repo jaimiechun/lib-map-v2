@@ -6,14 +6,23 @@
   const map = L.map("map", {
     worldCopyJump: true,
     minZoom: 2,
+    maxZoom: 7,
     zoomControl: false,
+    attributionControl: false,
   }).setView([15, 10], 2);
 
   L.control.zoom({ position: "bottomright" }).addTo(map);
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-    attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; OpenStreetMap contributors',
-    maxZoom: 19,
+  // Tile-free basemap: sea is the map background color (see style.css),
+  // land is drawn from Natural Earth polygons shipped in data/world.js.
+  const worldLayer = L.geoJSON(window.WISE_WORLD, {
+    interactive: false,
+    style: {
+      fillColor: "#f7f7f4",
+      fillOpacity: 1,
+      color: "#c6cbd4",
+      weight: 0.7,
+    },
   }).addTo(map);
 
   const detailCard = document.getElementById("detail-card");
@@ -102,7 +111,9 @@
         if (country) layer.on("click", () => showDetail(country));
       },
     }).addTo(map);
+    // Shading sits below the markers but above the land basemap.
     borderLayer.bringToBack();
+    worldLayer.bringToBack();
   }
 
   function renderMarkers() {
