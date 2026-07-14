@@ -45,8 +45,14 @@
   let selectedTools = new Set();
   let allTools = [];
 
+  // Dots shrink when zoomed out so the world view doesn't look jumbled,
+  // reaching full size around zoom 5.
+  function zoomScale() {
+    return Math.min(1, 0.45 + (map.getZoom() - 2) * 0.18);
+  }
+
   function radiusFor(entryCount) {
-    return Math.min(6 + Math.sqrt(entryCount) * 3, 20);
+    return Math.min(6 + Math.sqrt(entryCount) * 3, 20) * zoomScale();
   }
 
   // Single teal hue: completed = solid, planned = translucent.
@@ -303,6 +309,8 @@
       if (first) first.click();
     }
   });
+  map.on("zoomend", () => renderMarkers());
+
   document.getElementById("search-btn").addEventListener("click", () => {
     runSearch(searchInput.value);
     searchInput.focus();
@@ -327,7 +335,21 @@
     allTools = [...new Set(countries.flatMap((c) => c.entries.map((e) => e.tool)).filter(Boolean))].sort();
     updateStats();
     renderMarkers();
+
+    // The container can have zero size at script time (embeds, slow layout),
+    // which makes fitBounds zoom in to the max. Invalidate the cached size
+    // and defer the initial fit until the container is actually laid out.
     const bounds = L.latLngBounds(countries.map((c) => [c.lat, c.lng]));
-    map.fitBounds(bounds, { padding: [40, 40] });
+    let fitted = false;
+    const tryFit = () => {
+      map.invalidateSize();
+      const size = map.getSize();
+      if (!fitted && size.x > 0 && size.y > 0) {
+        fitted = true;
+        map.fitBounds(bounds, { padding: [40, 40] });
+      }
+    };
+    tryFit();
+    new ResizeObserver(tryFit).observe(document.getElementById("map"));
   }
 })();
