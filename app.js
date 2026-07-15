@@ -193,7 +193,7 @@
           <details class="entry-group">
             <summary>
               <span class="group-title">${entryTitle(group[0])}</span>
-              <span class="group-count">${group.length} studies</span>
+              <span class="group-count"><span class="count-verb">View </span>${group.length} studies <span class="group-chev">▾</span></span>
             </summary>
             ${group.map((e) => entryHtml(e, false)).join("")}
           </details>

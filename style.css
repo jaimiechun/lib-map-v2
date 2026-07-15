@@ -377,14 +377,23 @@ html, body {
 
 .entry-group summary::-webkit-details-marker { display: none; }
 
-.entry-group summary::after {
-  content: "▾";
+.entry-group summary:hover {
+  background: #f2f9f7;
+  border-radius: 8px;
+  margin: 0 -6px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.group-chev {
+  display: inline-block;
   font-size: 11px;
-  color: var(--muted);
   transition: transform 0.15s;
 }
 
-.entry-group[open] summary::after { transform: rotate(180deg); }
+.entry-group[open] .group-chev { transform: rotate(180deg); }
+
+.entry-group[open] .count-verb { display: none; }
 
 .entry-group .group-title {
   font-size: 13px;
@@ -398,8 +407,12 @@ html, body {
   color: var(--teal);
   background: #cdeade;
   border-radius: 999px;
-  padding: 2px 8px;
+  padding: 4px 10px;
   white-space: nowrap;
+}
+
+.entry-group summary:hover .group-count {
+  background: #bfe3d3;
 }
 
 .entry-group .entry {
