@@ -83,7 +83,7 @@
   function entryMatchesFilter(entry) {
     if (activeStatusFilter === "completed" && entry.status !== "Completed") return false;
     if (activeStatusFilter === "planned" && entry.status !== "Planned") return false;
-    if (selectedTools.size && !selectedTools.has(entry.tool)) return false;
+    if (entry.tool && !selectedTools.has(entry.tool)) return false;
     return true;
   }
 
@@ -219,7 +219,7 @@
         g.querySelector(".tool-list").innerHTML = "";
       });
       chip.classList.add("active");
-      if (activeStatusFilter !== group.dataset.filter) selectedTools.clear();
+      if (activeStatusFilter !== group.dataset.filter) selectedTools = new Set(allTools);
       activeStatusFilter = group.dataset.filter;
       if (!wasActive) {
         group.classList.add("open");
@@ -333,6 +333,12 @@
   } else {
     countries = data.filter((c) => typeof c.lat === "number" && typeof c.lng === "number");
     allTools = [...new Set(countries.flatMap((c) => c.entries.map((e) => e.tool)).filter(Boolean))].sort();
+    // Everything is visible on first load, so every tool starts checked and
+    // the active group starts expanded to make that state visible.
+    selectedTools = new Set(allTools);
+    const activeGroup = document.querySelector('.filter-group[data-filter="all"]');
+    activeGroup.classList.add("open");
+    renderToolList(activeGroup);
     updateStats();
     renderMarkers();
 
