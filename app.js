@@ -1,7 +1,7 @@
 (function () {
   const STATUS_LABEL = { completed: "Completed", planned: "Planned", mixed: "In progress" };
   const TEAL = "#0e7c7b";
-  const REP_FILL = "#CB7AA5";
+  const REP_FILL = "#82AEF3";
 
   // Visitor data submissions. If SUBMIT_ENDPOINT is set (e.g. a Google Apps
   // Script web app or Formspree URL), the form POSTs JSON there. If it is
