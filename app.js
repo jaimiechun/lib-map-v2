@@ -224,13 +224,9 @@
       ${filter ? `
         <div class="detail-filter-note">
           Showing matches for “${filter.label}”
-          <button id="detail-show-all">Show all ${country.entries.length}</button>
         </div>` : ""}
       ${groupedEntriesHtml(entries)}
     `;
-    if (filter) {
-      document.getElementById("detail-show-all").addEventListener("click", () => showDetail(country));
-    }
     detailCard.classList.remove("hidden");
   }
 

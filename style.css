@@ -502,10 +502,6 @@ html, body {
 }
 
 .detail-filter-note {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
   background: #f2f9f7;
   border: 1px solid #cdeade;
   border-radius: 10px;
@@ -515,21 +511,6 @@ html, body {
   margin-bottom: 10px;
   word-break: break-word;
 }
-
-.detail-filter-note button {
-  border: none;
-  background: var(--teal);
-  color: #fff;
-  font-family: inherit;
-  font-size: 11.5px;
-  font-weight: 600;
-  border-radius: 999px;
-  padding: 5px 10px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.detail-filter-note button:hover { background: #0b6362; }
 
 .entry {
   border-top: 1px solid var(--border);
