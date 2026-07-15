@@ -145,8 +145,11 @@
     return `<div class="badge-row">${parts.join("")}</div>`;
   }
 
-  function entryHtml(entry) {
-    const title = entry.location || entry.source || (entry.level === "national" ? "National survey" : "Site data");
+  function entryTitle(entry) {
+    return entry.location || entry.source || (entry.level === "national" ? "National survey" : "Site data");
+  }
+
+  function entryHtml(entry, showTitle) {
     const metaParts = [];
     if (entry.source) metaParts.push(entry.source);
     if (entry.dates) metaParts.push(entry.dates);
@@ -161,11 +164,42 @@
     return `
       <div class="entry">
         ${badgeHtml(entry)}
-        <p class="entry-loc">${title}</p>
+        ${showTitle ? `<p class="entry-loc">${entryTitle(entry)}</p>` : ""}
         ${metaParts.length ? `<p class="entry-meta">${metaParts.join(" · ")}</p>` : ""}
         ${links.length ? `<div class="entry-links">${links.join("")}</div>` : ""}
       </div>
     `;
+  }
+
+  // Entries sharing a location (e.g. four studies in Gaza) collapse under one
+  // expandable header so the card isn't a wall of near-identical rows.
+  function groupedEntriesHtml(entries) {
+    const groups = [];
+    const byKey = new Map();
+    entries.forEach((entry) => {
+      const key = entryTitle(entry).trim().toLowerCase();
+      if (!byKey.has(key)) {
+        byKey.set(key, []);
+        groups.push(key);
+      }
+      byKey.get(key).push(entry);
+    });
+
+    return groups
+      .map((key) => {
+        const group = byKey.get(key);
+        if (group.length === 1) return entryHtml(group[0], true);
+        return `
+          <details class="entry-group">
+            <summary>
+              <span class="group-title">${entryTitle(group[0])}</span>
+              <span class="group-count">${group.length} studies</span>
+            </summary>
+            ${group.map((e) => entryHtml(e, false)).join("")}
+          </details>
+        `;
+      })
+      .join("");
   }
 
   function showDetail(country) {
@@ -177,7 +211,7 @@
         ${country.entries.length} data collection ${country.entries.length === 1 ? "entry" : "entries"}
         · ${completedCount} completed${plannedCount ? ` · ${plannedCount} planned` : ""}
       </p>
-      ${country.entries.map(entryHtml).join("")}
+      ${groupedEntriesHtml(country.entries)}
     `;
     detailCard.classList.remove("hidden");
   }
