@@ -3,6 +3,12 @@
   const TEAL = "#0e7c7b";
   const REP_FILL = "#CB7AA5";
 
+  // Visitor data submissions. If SUBMIT_ENDPOINT is set (e.g. a Google Apps
+  // Script web app or Formspree URL), the form POSTs JSON there. If it is
+  // empty, the form falls back to opening a pre-filled email to SUBMIT_EMAIL.
+  const SUBMIT_ENDPOINT = "";
+  const SUBMIT_EMAIL = "wise_scales@northwestern.edu";
+
   const map = L.map("map", {
     worldCopyJump: true,
     minZoom: 2,
@@ -343,6 +349,73 @@
       if (first) first.click();
     }
   });
+  // --- Visitor data submission ---
+  const submitOverlay = document.getElementById("submit-overlay");
+  const submitForm = document.getElementById("submit-form");
+  const submitStatus = document.getElementById("submit-status");
+  const submitSend = document.getElementById("submit-send");
+
+  document.getElementById("submit-open").addEventListener("click", () => {
+    submitOverlay.classList.remove("hidden");
+  });
+  document.getElementById("submit-close").addEventListener("click", () => {
+    submitOverlay.classList.add("hidden");
+  });
+  submitOverlay.addEventListener("click", (e) => {
+    if (e.target === submitOverlay) submitOverlay.classList.add("hidden");
+  });
+
+  function submissionBody(data) {
+    return [
+      "New WISE map data submission",
+      "----------------------------",
+      `Level: ${data.level}`,
+      `Country: ${data.country}`,
+      `Location: ${data.location || "-"}`,
+      `Status: ${data.status}`,
+      `Tool: ${data.tool}`,
+      `Dates: ${data.dates || "-"}`,
+      `Source: ${data.source || "-"}`,
+      `Link: ${data.link || "-"}`,
+      `Data contact: ${data.contact || "-"}`,
+      `Submitted by: ${data.submitter}`,
+      `Notes: ${data.notes || "-"}`,
+    ].join("\n");
+  }
+
+  submitForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(submitForm).entries());
+    submitStatus.classList.remove("hidden", "error");
+
+    if (SUBMIT_ENDPOINT) {
+      submitSend.disabled = true;
+      submitStatus.textContent = "Sending…";
+      fetch(SUBMIT_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(data),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          submitStatus.textContent = "Thank you! Your submission was sent to the research team for review.";
+          submitForm.reset();
+        })
+        .catch(() => {
+          submitStatus.classList.add("error");
+          submitStatus.textContent = "Something went wrong sending your submission. Please try again or email " + SUBMIT_EMAIL + ".";
+        })
+        .finally(() => {
+          submitSend.disabled = false;
+        });
+    } else {
+      const subject = `WISE map data submission: ${data.country}`;
+      window.location.href =
+        `mailto:${SUBMIT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(submissionBody(data))}`;
+      submitStatus.textContent = "Your email app should open with the submission pre-filled — just hit send.";
+    }
+  });
+
   map.on("zoomend", () => renderMarkers());
 
   document.getElementById("search-btn").addEventListener("click", () => {

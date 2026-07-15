@@ -17,7 +17,10 @@
         <p id="subtitle">Where WISE data has been collected, by country</p>
       </div>
     </div>
-    <div id="stats"></div>
+    <div id="header-right">
+      <div id="stats"></div>
+      <button id="submit-open">Submit data</button>
+    </div>
   </header>
 
   <div id="map-wrap">
@@ -58,6 +61,73 @@
     <div id="detail-card" class="hidden">
       <button id="detail-close" aria-label="Close">×</button>
       <div id="detail-content"></div>
+    </div>
+
+    <div id="submit-overlay" class="hidden">
+      <div id="submit-modal">
+        <button id="submit-close" aria-label="Close">×</button>
+        <h2>Submit data for review</h2>
+        <p class="submit-intro">
+          Know of WISE data collection that isn't on this map? Send it to the
+          research team. Submissions are reviewed before they appear.
+        </p>
+        <form id="submit-form">
+          <div class="form-row">
+            <label>Data level
+              <select name="level" required>
+                <option value="Site">Site-level</option>
+                <option value="National">National</option>
+              </select>
+            </label>
+            <label>Status
+              <select name="status" required>
+                <option>Completed</option>
+                <option>Ongoing</option>
+                <option>Planned</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>Country *
+              <input name="country" required placeholder="e.g. Kenya">
+            </label>
+            <label>Tool *
+              <select name="tool" required>
+                <option>HWISE-12</option>
+                <option>HWISE-4</option>
+                <option>IWISE-12</option>
+                <option>IWISE-4</option>
+                <option>Other</option>
+              </select>
+            </label>
+          </div>
+          <label>Location / region (for site-level data)
+            <input name="location" placeholder="e.g. Kampala, five informal settlements">
+          </label>
+          <div class="form-row">
+            <label>Data collection dates
+              <input name="dates" placeholder="e.g. March–July 2025">
+            </label>
+            <label>Source / survey (for national data)
+              <input name="source" placeholder="e.g. Gallup World Poll">
+            </label>
+          </div>
+          <label>Link to more info (paper, report, website)
+            <input name="link" type="url" placeholder="https://...">
+          </label>
+          <label>Contact for this data
+            <input name="contact" type="email" placeholder="name@example.org">
+          </label>
+          <label>Your name &amp; email (so we can follow up) *
+            <input name="submitter" required placeholder="Jane Doe, jane@example.org">
+          </label>
+          <label>Anything else we should know?
+            <textarea name="notes" rows="2"></textarea>
+          </label>
+          <button type="submit" id="submit-send">Send to research team</button>
+          <p id="submit-status" class="hidden"></p>
+        </form>
+      </div>
     </div>
   </div>
 </div>
