@@ -361,6 +361,52 @@ html, body {
 }
 .entry:first-of-type { border-top: none; }
 
+.entry-group {
+  border-top: 1px solid var(--border);
+}
+
+.entry-group summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.entry-group summary::-webkit-details-marker { display: none; }
+
+.entry-group summary::after {
+  content: "▾";
+  font-size: 11px;
+  color: var(--muted);
+  transition: transform 0.15s;
+}
+
+.entry-group[open] summary::after { transform: rotate(180deg); }
+
+.entry-group .group-title {
+  font-size: 13px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.entry-group .group-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--teal);
+  background: #cdeade;
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.entry-group .entry {
+  margin-left: 12px;
+  border-top: 1px dashed var(--border);
+}
+
 .badge-row {
   display: flex;
   flex-wrap: wrap;
