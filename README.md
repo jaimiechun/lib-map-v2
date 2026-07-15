@@ -22,6 +22,22 @@ python3 scripts/build_borders.py  # -> data/borders.js + data/world.js
 it can't match (typos, new spellings). Fix the CSV or add an alias to
 `COUNTRY_ALIASES` in the script, re-run, then commit and push.
 
+## Deploying / cache-busting
+
+The site is served via GitHub Pages straight from `main`. Browsers (and
+GitHub's CDN) aggressively cache `style.css`, `app.js`, and the `data/*.js`
+files, so after **any** change to those files — including the data rebuild
+above — run:
+
+```
+python3 scripts/bump_cache_version.py
+```
+
+This stamps a fresh `?v=<timestamp>` onto each of those files' `<script>`/
+`<link>` tags in `index.html`, so visitors always get the latest version
+instead of a stale cached copy. Commit the updated `index.html` along with
+your other changes.
+
 ## Visitor data submissions
 
 The "Submit data" button on the map opens a form for visitors to propose new
