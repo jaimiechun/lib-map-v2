@@ -193,7 +193,7 @@
           <details class="entry-group">
             <summary>
               <span class="group-title">${entryTitle(group[0])}</span>
-              <span class="group-count"><span class="count-verb">View </span>${group.length} studies <span class="group-chev">▾</span></span>
+              <span class="group-count"><span class="count-verb">View </span>${group.length} studies <span class="group-chev"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span></span>
             </summary>
             ${group.map((e) => entryHtml(e, false)).join("")}
           </details>

@@ -245,8 +245,8 @@ html, body {
 }
 
 .chev {
-  font-size: 15px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
   color: var(--ink);
   transition: transform 0.15s;
 }
@@ -387,10 +387,9 @@ html, body {
 }
 
 .group-chev {
-  display: inline-block;
-  font-size: 15px;
-  line-height: 1;
-  vertical-align: -1px;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: -3px;
   transition: transform 0.15s;
 }
 
