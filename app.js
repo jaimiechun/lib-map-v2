@@ -208,17 +208,29 @@
       .join("");
   }
 
-  function showDetail(country) {
-    const completedCount = country.entries.filter((e) => e.status === "Completed").length;
-    const plannedCount = country.entries.filter((e) => e.status === "Planned").length;
+  // Optional filter ({entries, label}) narrows the card to a subset — used
+  // when arriving from a contact/source search hit, so e.g. searching a
+  // researcher shows only their entries, not everything in that country.
+  function showDetail(country, filter) {
+    const entries = filter ? filter.entries : country.entries;
+    const completedCount = entries.filter((e) => e.status === "Completed").length;
+    const plannedCount = entries.filter((e) => e.status === "Planned").length;
     detailContent.innerHTML = `
       <p class="detail-country">${country.name}</p>
       <p class="detail-summary">
-        ${country.entries.length} data collection ${country.entries.length === 1 ? "entry" : "entries"}
+        ${entries.length} data collection ${entries.length === 1 ? "entry" : "entries"}
         · ${completedCount} completed${plannedCount ? ` · ${plannedCount} planned` : ""}
       </p>
-      ${groupedEntriesHtml(country.entries)}
+      ${filter ? `
+        <div class="detail-filter-note">
+          Showing matches for “${filter.label}”
+          <button id="detail-show-all">Show all ${country.entries.length}</button>
+        </div>` : ""}
+      ${groupedEntriesHtml(entries)}
     `;
+    if (filter) {
+      document.getElementById("detail-show-all").addEventListener("click", () => showDetail(country));
+    }
     detailCard.classList.remove("hidden");
   }
 
@@ -273,19 +285,27 @@
   const searchInput = document.getElementById("search-input");
   const searchResults = document.getElementById("search-results");
 
-  function focusCountry(country) {
+  function focusCountry(country, filter) {
     map.setView([country.lat, country.lng], 5);
-    showDetail(country);
+    showDetail(country, filter);
     searchResults.classList.add("hidden");
     searchInput.value = "";
   }
 
-  function resultButton(label, sub, country) {
+  function resultButton(label, sub, country, filter) {
     const btn = document.createElement("button");
     btn.className = "search-result";
     btn.innerHTML = `${label}${sub ? `<span class="result-sub">${sub}</span>` : ""}`;
-    btn.addEventListener("click", () => focusCountry(country));
+    btn.addEventListener("click", () => focusCountry(country, filter));
     return btn;
+  }
+
+  // Every whitespace-separated token must appear in the field, so
+  // "vanessa bly" matches the contact "vanessa.bly@northwestern.edu".
+  function fieldMatches(field, tokens) {
+    if (!field) return false;
+    const f = field.toLowerCase();
+    return tokens.every((t) => f.includes(t));
   }
 
   function runSearch(query) {
@@ -295,23 +315,28 @@
       searchResults.classList.add("hidden");
       return;
     }
+    const tokens = q.split(/\s+/);
 
     // A previously opened card would cover the results dropdown.
     detailCard.classList.add("hidden");
 
     const countryHits = countries.filter((c) => c.name.toLowerCase().includes(q)).slice(0, 8);
 
-    // People/organizations: match against contact emails and survey sources.
+    // People/organizations: match against contact emails and survey sources,
+    // remembering which entries matched so the card can show just those.
     const personHits = [];
-    const seen = new Set();
+    const seen = new Map();
     countries.forEach((c) => {
       c.entries.forEach((e) => {
         [e.contact, e.source].forEach((field) => {
-          if (!field || !field.toLowerCase().includes(q)) return;
+          if (!fieldMatches(field, tokens)) return;
           const key = field + "|" + c.iso3;
-          if (seen.has(key)) return;
-          seen.add(key);
-          personHits.push({ field, country: c });
+          if (!seen.has(key)) {
+            const hit = { field, country: c, entries: [] };
+            seen.set(key, hit);
+            personHits.push(hit);
+          }
+          if (!seen.get(key).entries.includes(e)) seen.get(key).entries.push(e);
         });
       });
     });
@@ -328,8 +353,8 @@
       title.className = "search-group-title";
       title.textContent = "Contacts & sources";
       searchResults.appendChild(title);
-      personHits.slice(0, 10).forEach(({ field, country }) => {
-        searchResults.appendChild(resultButton(country.name, field, country));
+      personHits.slice(0, 10).forEach(({ field, country, entries }) => {
+        searchResults.appendChild(resultButton(country.name, field, country, { entries, label: field }));
       });
     }
     if (!countryHits.length && !personHits.length) {
