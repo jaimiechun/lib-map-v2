@@ -225,8 +225,9 @@ html, body {
 #map {
   position: absolute;
   inset: 0;
-  /* Sea: #9CA5D3 at 60% over white */
-  background: rgba(156, 165, 211, 0.6);
+  /* Slate-teal sea, kept clearly distinct from the bright blue used to
+     shade nationally representative countries. */
+  background: #7C93A0;
 }
 
 /* Filter panel */
