@@ -7,7 +7,7 @@
   // Script web app or Formspree URL), the form POSTs JSON there. If it is
   // empty, the form falls back to opening a pre-filled email to SUBMIT_EMAIL.
   const SUBMIT_ENDPOINT = "";
-  const SUBMIT_EMAIL = "wise_scales@northwestern.edu";
+  const SUBMIT_EMAIL = "sera.young@northwestern.edu";
 
   const map = L.map("map", {
     worldCopyJump: true,
