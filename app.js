@@ -520,7 +520,8 @@
     };
     script.onerror = () => {
       globeLoading = false;
-      globeBtn.textContent = "🌐 Globe view";
+      globeBtn.textContent = "🌐";
+      globeBtn.title = "Globe view";
       globeEl.classList.remove("active");
       mapEl.style.display = "block";
       globeActive = false;
@@ -533,14 +534,16 @@
       globeActive = false;
       globeEl.classList.remove("active");
       mapEl.style.display = "block";
-      globeBtn.textContent = "🌐 Globe view";
+      globeBtn.textContent = "🌐";
+      globeBtn.title = "Globe view";
       map.invalidateSize();
       return;
     }
     globeActive = true;
     mapEl.style.display = "none";
     globeEl.classList.add("active");
-    globeBtn.textContent = "🗺️ 2D view";
+    globeBtn.textContent = "🗺️";
+    globeBtn.title = "2D view";
     if (!globe && !globeLoading) {
       globeLoading = true;
       initGlobe();
