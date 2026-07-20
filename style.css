@@ -455,20 +455,18 @@ html, body {
 
 #globe-btn {
   position: absolute;
-  top: 56px;
-  right: 12px;
+  top: 12px;
+  right: 54px;
   z-index: 500;
+  width: 34px;
+  height: 34px;
   border: 1px solid var(--border);
   background: var(--panel-bg);
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--ink);
-  border-radius: 999px;
-  padding: 8px 14px;
+  font-size: 16px;
+  line-height: 1;
+  border-radius: 10px;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(20, 30, 40, 0.1);
-  white-space: nowrap;
 }
 
 #globe-btn:hover { background: #fff; }
