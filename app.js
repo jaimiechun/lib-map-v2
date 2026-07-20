@@ -130,6 +130,7 @@
 
   function renderMarkers() {
     renderBorders();
+    updateGlobe();
     markers.forEach((m) => map.removeLayer(m));
     markers = [];
     countries.filter(passesFilter).forEach((country) => {
@@ -283,6 +284,7 @@
 
   function focusCountry(country, filter) {
     map.setView([country.lat, country.lng], 5);
+    if (globeActive && globe) globe.pointOfView({ lat: country.lat, lng: country.lng, altitude: 1.2 }, 800);
     showDetail(country, filter);
     searchResults.classList.add("hidden");
     searchInput.value = "";
@@ -465,6 +467,88 @@
 
   map.on("zoomend", () => renderMarkers());
 
+  // --- Globe view (lazy-loaded WebGL globe; same data and filters) ---
+  const globeBtn = document.getElementById("globe-btn");
+  const globeEl = document.getElementById("globe");
+  const mapEl = document.getElementById("map");
+  let globe = null;
+  let globeActive = false;
+  let globeLoading = false;
+
+  function updateGlobe() {
+    if (!globe) return;
+    const visible = countries.filter(passesFilter);
+    const rep = new Set(
+      showRepShading
+        ? countries.filter((c) => c.nationallyRepresentative && passesFilter(c)).map((c) => c.iso3)
+        : []
+    );
+    globe
+      .pointsData(visible)
+      .polygonCapColor((f) => (rep.has(f.id) ? "rgba(130, 174, 243, 0.9)" : "#f7f7f4"));
+  }
+
+  function initGlobe() {
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/globe.gl@2.34.5/dist/globe.gl.min.js";
+    script.onload = () => {
+      globe = Globe()(globeEl)
+        .backgroundColor("rgba(0,0,0,0)")
+        .showAtmosphere(true)
+        .atmosphereColor("#b9d6e8")
+        .polygonsData(window.WISE_WORLD.features)
+        .polygonAltitude(0.006)
+        .polygonSideColor(() => "rgba(20, 30, 40, 0.05)")
+        .polygonStrokeColor(() => "#c6cbd4")
+        .pointLat((d) => d.lat)
+        .pointLng((d) => d.lng)
+        .pointColor(() => TEAL)
+        .pointAltitude(0.012)
+        .pointRadius((d) => Math.min(0.35 + Math.sqrt(d.entries.length) * 0.2, 1.4))
+        .onPointClick((d) => showDetail(d))
+        .onPolygonClick((f) => {
+          const c = countries.find((x) => x.iso3 === f.id);
+          if (c) showDetail(c);
+        });
+      globe.globeMaterial().color.set("#fdffe9");
+      globe.pointOfView({ lat: 15, lng: 10, altitude: 2 });
+      new ResizeObserver(() => {
+        globe.width(globeEl.clientWidth).height(globeEl.clientHeight);
+      }).observe(globeEl);
+      globeLoading = false;
+      updateGlobe();
+    };
+    script.onerror = () => {
+      globeLoading = false;
+      globeBtn.textContent = "🌐 Globe view";
+      globeEl.classList.remove("active");
+      mapEl.style.display = "block";
+      globeActive = false;
+    };
+    document.body.appendChild(script);
+  }
+
+  globeBtn.addEventListener("click", () => {
+    if (globeActive) {
+      globeActive = false;
+      globeEl.classList.remove("active");
+      mapEl.style.display = "block";
+      globeBtn.textContent = "🌐 Globe view";
+      map.invalidateSize();
+      return;
+    }
+    globeActive = true;
+    mapEl.style.display = "none";
+    globeEl.classList.add("active");
+    globeBtn.textContent = "🗺️ 2D view";
+    if (!globe && !globeLoading) {
+      globeLoading = true;
+      initGlobe();
+    } else {
+      updateGlobe();
+    }
+  });
+
   document.getElementById("search-btn").addEventListener("click", () => {
     runSearch(searchInput.value);
     searchInput.focus();
@@ -476,6 +560,7 @@
   document.getElementById("rep-shading").addEventListener("change", (e) => {
     showRepShading = e.target.checked;
     renderBorders();
+    updateGlobe();
   });
 
   // Data is loaded via a <script> tag (data/countries.js) rather than fetch()
