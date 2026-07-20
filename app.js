@@ -318,6 +318,23 @@
 
     const countryHits = countries.filter((c) => c.name.toLowerCase().includes(q)).slice(0, 8);
 
+    // Cities/regional sites: match entry locations, remembering which
+    // entries matched so the card can show just that place's studies.
+    const locationHits = [];
+    const seenLocations = new Map();
+    countries.forEach((c) => {
+      c.entries.forEach((e) => {
+        if (!fieldMatches(e.location, tokens)) return;
+        const key = e.location.trim().toLowerCase() + "|" + c.iso3;
+        if (!seenLocations.has(key)) {
+          const hit = { location: e.location, country: c, entries: [] };
+          seenLocations.set(key, hit);
+          locationHits.push(hit);
+        }
+        seenLocations.get(key).entries.push(e);
+      });
+    });
+
     // People/organizations: match against contact emails and survey sources,
     // remembering which entries matched so the card can show just those.
     const personHits = [];
@@ -344,6 +361,15 @@
       searchResults.appendChild(title);
       countryHits.forEach((c) => searchResults.appendChild(resultButton(c.name, null, c)));
     }
+    if (locationHits.length) {
+      const title = document.createElement("div");
+      title.className = "search-group-title";
+      title.textContent = "Locations";
+      searchResults.appendChild(title);
+      locationHits.slice(0, 10).forEach(({ location, country, entries }) => {
+        searchResults.appendChild(resultButton(location, country.name, country, { entries, label: location }));
+      });
+    }
     if (personHits.length) {
       const title = document.createElement("div");
       title.className = "search-group-title";
@@ -353,7 +379,7 @@
         searchResults.appendChild(resultButton(country.name, field, country, { entries, label: field }));
       });
     }
-    if (!countryHits.length && !personHits.length) {
+    if (!countryHits.length && !locationHits.length && !personHits.length) {
       const empty = document.createElement("div");
       empty.className = "search-empty";
       empty.textContent = "No matches";
