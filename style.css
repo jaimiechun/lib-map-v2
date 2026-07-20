@@ -453,6 +453,36 @@ html, body {
 
 #expand-btn:hover { background: #fff; }
 
+#globe-btn {
+  position: absolute;
+  top: 56px;
+  right: 12px;
+  z-index: 500;
+  border: 1px solid var(--border);
+  background: var(--panel-bg);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(20, 30, 40, 0.1);
+  white-space: nowrap;
+}
+
+#globe-btn:hover { background: #fff; }
+
+#globe {
+  position: absolute;
+  inset: 0;
+  display: none;
+  /* Same sea tint as the 2D map */
+  background: rgba(247, 255, 178, 0.45);
+}
+
+#globe.active { display: block; }
+
 /* Markers: solid teal = completed, translucent teal = planned (color/opacity set in app.js) */
 
 /* Detail card */
