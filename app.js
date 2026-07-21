@@ -492,18 +492,24 @@
     const script = document.createElement("script");
     script.src = "https://unpkg.com/globe.gl@2.34.5/dist/globe.gl.min.js";
     script.onload = () => {
-      globe = Globe()(globeEl)
+      globe = Globe({ rendererConfig: { antialias: true, alpha: true } })(globeEl)
         .backgroundColor("rgba(0,0,0,0)")
         .showAtmosphere(true)
         .atmosphereColor("#b9d6e8")
         .polygonsData(window.WISE_WORLD.features)
-        .polygonAltitude(0.006)
+        .polygonAltitude(0.008)
+        // Finer tessellation so large polygons follow the sphere's curvature
+        // instead of cutting through it (which shimmered/glitched).
+        .polygonCapCurvatureResolution(3)
+        .polygonsTransitionDuration(0)
         .polygonSideColor(() => "rgba(20, 30, 40, 0.05)")
         .polygonStrokeColor(() => "#c6cbd4")
         .pointLat((d) => d.lat)
         .pointLng((d) => d.lng)
         .pointColor(() => TEAL)
         .pointAltitude(0.012)
+        // More cylinder segments so the dots render as smooth circles.
+        .pointResolution(32)
         .pointRadius((d) => Math.min(0.35 + Math.sqrt(d.entries.length) * 0.2, 1.4))
         .onPointClick((d) => showDetail(d))
         .onPolygonClick((f) => {
@@ -511,6 +517,9 @@
           if (c) showDetail(c);
         });
       globe.globeMaterial().color.set("#fdffe9");
+      // Render at the display's native pixel density (capped at 2x) so the
+      // globe isn't pixelated on retina screens.
+      globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       globe.pointOfView({ lat: 15, lng: 10, altitude: 2 });
       new ResizeObserver(() => {
         globe.width(globeEl.clientWidth).height(globeEl.clientHeight);
