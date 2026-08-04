@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Water Insecurity Data Collection Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="style.css?v=1784658268" />
+<link rel="stylesheet" href="style.css?v=1785865473" />
 </head>
 <body>
 <div id="app">
@@ -71,7 +71,9 @@
         <h2>Submit data for review</h2>
         <p class="submit-intro">
           Know of WISE data collection that isn't on this map? Send it to the
-          research team. Submissions are reviewed before they appear.
+          WISE Scale team. Submissions are reviewed before they appear. For
+          any other inquiries, contact
+          <a href="mailto:wise_scales@northwestern.edu">wise_scales@northwestern.edu</a>.
         </p>
         <form id="submit-form">
           <div class="form-row">
@@ -91,7 +93,9 @@
           </div>
           <div class="form-row">
             <label>Country *
-              <input name="country" required placeholder="e.g. Kenya">
+              <select name="country" id="submit-country" required>
+                <option value="" disabled selected>Select a country…</option>
+              </select>
             </label>
             <label>Tool *
               <select name="tool" required>
@@ -99,6 +103,8 @@
                 <option>HWISE-4</option>
                 <option>IWISE-12</option>
                 <option>IWISE-4</option>
+                <option>Healthcare Facility (HCF) - WISE</option>
+                <option>SCHOOL-WISE</option>
                 <option>Other</option>
               </select>
             </label>
@@ -117,7 +123,7 @@
           <label>Link to more info (paper, report, website)
             <input name="link" type="url" placeholder="https://...">
           </label>
-          <label>Contact for this data
+          <label>Contact for these data
             <input name="contact" type="email" placeholder="name@example.org">
           </label>
           <label>Your name &amp; email (so we can follow up) *
@@ -126,7 +132,7 @@
           <label>Anything else we should know?
             <textarea name="notes" rows="2"></textarea>
           </label>
-          <button type="submit" id="submit-send">Send to research team</button>
+          <button type="submit" id="submit-send">Send to WISE Scale team</button>
           <p id="submit-status" class="hidden"></p>
         </form>
       </div>
@@ -135,9 +141,9 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="data/countries.js?v=1784658268"></script>
-<script src="data/borders.js?v=1784658268"></script>
-<script src="data/world.js?v=1784658268"></script>
-<script src="app.js?v=1784658268"></script>
+<script src="data/countries.js?v=1785865473"></script>
+<script src="data/borders.js?v=1785865473"></script>
+<script src="data/world.js?v=1785865473"></script>
+<script src="app.js?v=1785865473"></script>
 </body>
 </html>

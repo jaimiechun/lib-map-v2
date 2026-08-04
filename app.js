@@ -6,7 +6,7 @@
   // Visitor data submissions. If SUBMIT_ENDPOINT is set (e.g. a Google Apps
   // Script web app or Formspree URL), the form POSTs JSON there. If it is
   // empty, the form falls back to opening a pre-filled email to SUBMIT_EMAIL.
-  const SUBMIT_ENDPOINT = "";
+  const SUBMIT_ENDPOINT = "https://formspree.io/f/xeajjpzr";
   const SUBMIT_EMAIL = "sera.young@northwestern.edu";
 
   const map = L.map("map", {
@@ -403,6 +403,19 @@
   const submitForm = document.getElementById("submit-form");
   const submitStatus = document.getElementById("submit-status");
   const submitSend = document.getElementById("submit-send");
+  const submitCountry = document.getElementById("submit-country");
+
+  if (submitCountry && window.WISE_WORLD) {
+    const countryNames = [...new Set(
+      window.WISE_WORLD.features.map((f) => f.properties.name)
+    )].sort((a, b) => a.localeCompare(b));
+    for (const name of countryNames) {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      submitCountry.appendChild(opt);
+    }
+  }
 
   document.getElementById("submit-open").addEventListener("click", () => {
     submitOverlay.classList.remove("hidden");
@@ -442,8 +455,14 @@
       submitStatus.textContent = "Sending…";
       fetch(SUBMIT_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          ...data,
+          _subject: `WISE map data submission: ${data.country}`,
+        }),
       })
         .then((res) => {
           if (!res.ok) throw new Error("HTTP " + res.status);
@@ -475,6 +494,21 @@
   let globeActive = false;
   let globeLoading = false;
 
+  // Radius in globe "points" units (globe.gl scale, roughly comparable to
+  // the 2D marker radius formula).
+  function globeDotRadius(country) {
+    return Math.min(0.35 + Math.sqrt(country.entries.length) * 0.22, 1.6);
+  }
+
+  function globeDotColor(country) {
+    // Solid teal for completed, translucent teal for planned, and a
+    // slightly-less-translucent teal for mixed (no room for the 2D
+    // halo-plus-core layering with a single WebGL point layer).
+    if (country.status === "completed") return TEAL;
+    if (country.status === "planned") return "rgba(14, 124, 123, 0.4)";
+    return "rgba(14, 124, 123, 0.75)";
+  }
+
   function updateGlobe() {
     if (!globe) return;
     const visible = countries.filter(passesFilter);
@@ -484,8 +518,15 @@
         : []
     );
     globe
+      .polygonCapColor((f) => (rep.has(f.id) ? "rgba(130, 174, 243, 0.9)" : "#f7f7f4"))
       .pointsData(visible)
-      .polygonCapColor((f) => (rep.has(f.id) ? "rgba(130, 174, 243, 0.9)" : "#f7f7f4"));
+      .pointColor(globeDotColor)
+      // Just above the land polygon cap altitude (0.008) so dots sit on
+      // top of the surface instead of being hidden beneath it, but still
+      // low enough to read as a flat disc rather than an extruded pill.
+      .pointAltitude(0.009)
+      .pointRadius(globeDotRadius)
+      .pointResolution(48);
   }
 
   function initGlobe() {
@@ -500,26 +541,19 @@
         .polygonAltitude(0.008)
         // Finer tessellation so large polygons follow the sphere's curvature
         // instead of cutting through it (which shimmered/glitched).
-        .polygonCapCurvatureResolution(3)
+        .polygonCapCurvatureResolution(1)
         .polygonsTransitionDuration(0)
         .polygonSideColor(() => "rgba(20, 30, 40, 0.05)")
         .polygonStrokeColor(() => "#c6cbd4")
-        .pointLat((d) => d.lat)
-        .pointLng((d) => d.lng)
-        .pointColor(() => TEAL)
-        .pointAltitude(0.012)
-        // More cylinder segments so the dots render as smooth circles.
-        .pointResolution(32)
-        .pointRadius((d) => Math.min(0.35 + Math.sqrt(d.entries.length) * 0.2, 1.4))
-        .onPointClick((d) => showDetail(d))
+        .onPointClick((c) => showDetail(c))
         .onPolygonClick((f) => {
           const c = countries.find((x) => x.iso3 === f.id);
           if (c) showDetail(c);
         });
       globe.globeMaterial().color.set("#fdffe9");
-      // Render at the display's native pixel density (capped at 2x) so the
-      // globe isn't pixelated on retina screens.
-      globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      // Render at the display's native pixel density so the globe isn't
+      // pixelated on retina screens (must be set before the first frame).
+      globe.renderer().setPixelRatio(window.devicePixelRatio || 1);
       globe.pointOfView({ lat: 15, lng: 10, altitude: 2 });
       new ResizeObserver(() => {
         globe.width(globeEl.clientWidth).height(globeEl.clientHeight);
