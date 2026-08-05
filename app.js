@@ -445,6 +445,13 @@
     ].join("\n");
   }
 
+  // Pulls an email address out of the free-text "Jane Doe, jane@example.org"
+  // submitter field so Formspree can set Reply-To to the actual visitor.
+  function extractEmail(text) {
+    const match = (text || "").match(/[^\s<>()]+@[^\s<>()]+\.[^\s<>()]+/);
+    return match ? match[0] : "";
+  }
+
   submitForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(submitForm).entries());
@@ -462,6 +469,7 @@
         body: JSON.stringify({
           ...data,
           _subject: `WISE map data submission: ${data.country}`,
+          _replyto: extractEmail(data.submitter) || undefined,
         }),
       })
         .then((res) => {
