@@ -398,9 +398,14 @@
       });
     }
     if (!countryHits.length && !locationHits.length && !personHits.length) {
+      // Distinguish "this is a real country, we just have no data for it"
+      // (e.g. France) from a genuinely unrecognized search.
+      const worldMatch = window.WISE_WORLD && window.WISE_WORLD.features.some(
+        (f) => (f.properties.name || "").toLowerCase().includes(q)
+      );
       const empty = document.createElement("div");
       empty.className = "search-empty";
-      empty.textContent = "No matches";
+      empty.textContent = worldMatch ? "No data yet" : "No matches";
       searchResults.appendChild(empty);
     }
     searchResults.classList.remove("hidden");
