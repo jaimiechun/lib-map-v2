@@ -3,6 +3,18 @@
   const TEAL = "#0e7c7b";
   const REP_FILL = "#82AEF3";
 
+  // Full known tool list (mirrors the Submit Data form's Tool dropdown), so
+  // the "See on map" filter always offers every tool as an option even
+  // before any data using it has been added.
+  const KNOWN_TOOLS = [
+    "HWISE-12",
+    "HWISE-4",
+    "IWISE-12",
+    "IWISE-4",
+    "Healthcare Facility (HCF) - WISE",
+    "SCHOOL-WISE",
+  ];
+
   // Visitor data submissions. If SUBMIT_ENDPOINT is set (e.g. a Google Apps
   // Script web app or Formspree URL), the form POSTs JSON there. If it is
   // empty, the form falls back to opening a pre-filled email to SUBMIT_EMAIL.
@@ -625,7 +637,11 @@
     console.error("data/countries.js did not load");
   } else {
     countries = data.filter((c) => typeof c.lat === "number" && typeof c.lng === "number");
-    allTools = [...new Set(countries.flatMap((c) => c.entries.map((e) => e.tool)).filter(Boolean))].sort();
+    // Union of the known tool list and whatever tools actually appear in the
+    // data, so nothing is silently dropped if the data has a tool that
+    // predates KNOWN_TOOLS being updated.
+    const dataTools = countries.flatMap((c) => c.entries.map((e) => e.tool)).filter(Boolean);
+    allTools = [...new Set([...KNOWN_TOOLS, ...dataTools])];
     // Everything is visible on first load, so every tool starts checked and
     // the active group starts expanded to make that state visible.
     selectedTools = new Set(allTools);
