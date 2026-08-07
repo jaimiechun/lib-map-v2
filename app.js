@@ -235,7 +235,7 @@
     detailContent.innerHTML = `
       <p class="detail-country">${country.name}</p>
       <p class="detail-summary">
-        ${entries.length} data collection ${entries.length === 1 ? "entry" : "entries"}
+        ${entries.length} data ${entries.length === 1 ? "entry" : "entries"}
         · ${summaryParts.join(" · ")}
       </p>
       ${filter ? `
