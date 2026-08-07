@@ -227,12 +227,16 @@
   function showDetail(country, filter) {
     const entries = filter ? filter.entries : country.entries;
     const completedCount = entries.filter((e) => e.status === "Completed").length;
+    const ongoingCount = entries.filter((e) => e.status === "Ongoing").length;
     const plannedCount = entries.filter((e) => e.status === "Planned").length;
+    const summaryParts = [`${completedCount} completed`];
+    if (ongoingCount) summaryParts.push(`${ongoingCount} ongoing`);
+    if (plannedCount) summaryParts.push(`${plannedCount} planned`);
     detailContent.innerHTML = `
       <p class="detail-country">${country.name}</p>
       <p class="detail-summary">
         ${entries.length} data collection ${entries.length === 1 ? "entry" : "entries"}
-        · ${completedCount} completed${plannedCount ? ` · ${plannedCount} planned` : ""}
+        · ${summaryParts.join(" · ")}
       </p>
       ${filter ? `
         <div class="detail-filter-note">
