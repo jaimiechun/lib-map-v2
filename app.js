@@ -15,6 +15,34 @@
     "SCHOOL-WISE",
   ];
 
+  // Map dots, tool badges, and filter swatches are all colored per tool.
+  const TOOL_COLORS = {
+    "HWISE-12": "#00AEE5",
+    "HWISE-4": "#00DF30",
+    "IWISE-12": "#00DDDC",
+    "IWISE-4": "#0078C4",
+    "Healthcare Facility (HCF) - WISE": "#00C6A1",
+    "SCHOOL-WISE": "#002565",
+  };
+  function toolColor(tool) {
+    return TOOL_COLORS[tool] || TEAL;
+  }
+  // Picks readable text color against a given fill (used on badges/swatches).
+  function contrastText(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.6 ? "#1c2430" : "#fff";
+  }
+  // Mirrors scripts/build_data.py's country-level status aggregation, but
+  // applied per tool-group so each tool's dot reflects only its own entries.
+  function aggregateStatus(entries) {
+    const statuses = new Set(entries.map((e) => e.status));
+    if ([...statuses].every((s) => s === "Completed")) return "completed";
+    if ([...statuses].every((s) => s === "Planned")) return "planned";
+    return "mixed";
+  }
+
   // Visitor data submissions. If SUBMIT_ENDPOINT is set (e.g. a Google Apps
   // Script web app or Formspree URL), the form POSTs JSON there. If it is
   // empty, the form falls back to opening a pre-filled email to SUBMIT_EMAIL.
@@ -73,24 +101,51 @@
     return Math.min(6 + Math.sqrt(entryCount) * 3, 20) * zoomScale();
   }
 
-  // Single teal hue: completed = solid, planned = translucent.
-  // Mixed countries get a solid core plus a translucent halo (both at once).
+  // One marker cluster per tool used in that country (counting only entries
+  // that pass the active status/tool filters), colored per TOOL_COLORS.
+  // Status within each tool's cluster still reads via opacity: solid =
+  // completed, translucent = planned, core+halo = mixed (same language as
+  // before, just recolored and split by tool). Multiple tools in one
+  // country get nudged into a small ring around the centroid so they don't
+  // fully overlap; a single-tool country sits exactly on the centroid.
   function markersFor(country) {
-    const radius = radiusFor(country.entries.length);
-    const base = {
-      className: "wise-marker",
-      weight: 0,
-      fillColor: TEAL,
-    };
+    const visibleEntries = country.entries.filter(entryMatchesFilter);
+    const byTool = new Map();
+    visibleEntries.forEach((e) => {
+      const key = e.tool || "Other";
+      if (!byTool.has(key)) byTool.set(key, []);
+      byTool.get(key).push(e);
+    });
+    const tools = [...byTool.keys()];
     const layers = [];
-    if (country.status === "completed") {
-      layers.push(L.circleMarker([country.lat, country.lng], { ...base, radius, fillOpacity: 1 }));
-    } else if (country.status === "planned") {
-      layers.push(L.circleMarker([country.lat, country.lng], { ...base, radius, fillOpacity: 0.35 }));
-    } else {
-      layers.push(L.circleMarker([country.lat, country.lng], { ...base, radius: radius * 1.6, fillOpacity: 0.3 }));
-      layers.push(L.circleMarker([country.lat, country.lng], { ...base, radius: radius * 0.75, fillOpacity: 1 }));
-    }
+
+    tools.forEach((tool, i) => {
+      const entries = byTool.get(tool);
+      const color = toolColor(tool);
+      const radius = radiusFor(entries.length);
+      const status = aggregateStatus(entries);
+
+      let lat = country.lat;
+      let lng = country.lng;
+      if (tools.length > 1) {
+        const angle = (2 * Math.PI * i) / tools.length;
+        const offsetDeg = 1.1;
+        const latCos = Math.max(Math.cos((country.lat * Math.PI) / 180), 0.2);
+        lat += offsetDeg * Math.sin(angle);
+        lng += (offsetDeg * Math.cos(angle)) / latCos;
+      }
+
+      const base = { className: "wise-marker", weight: 0, fillColor: color };
+      if (status === "completed") {
+        layers.push(L.circleMarker([lat, lng], { ...base, radius, fillOpacity: 1 }));
+      } else if (status === "planned") {
+        layers.push(L.circleMarker([lat, lng], { ...base, radius, fillOpacity: 0.35 }));
+      } else {
+        layers.push(L.circleMarker([lat, lng], { ...base, radius: radius * 1.6, fillOpacity: 0.3 }));
+        layers.push(L.circleMarker([lat, lng], { ...base, radius: radius * 0.75, fillOpacity: 1 }));
+      }
+    });
+
     layers.forEach((l) => l.on("click", () => showDetail(country)));
     return layers;
   }
@@ -157,7 +212,12 @@
     const parts = [];
     const statusClass = entry.status.toLowerCase();
     parts.push(`<span class="badge ${statusClass}">${entry.status}</span>`);
-    if (entry.tool) parts.push(`<span class="badge tool">${entry.tool}</span>`);
+    if (entry.tool) {
+      const bg = toolColor(entry.tool);
+      parts.push(
+        `<span class="badge tool" style="background:${bg};color:${contrastText(bg)}">${entry.tool}</span>`
+      );
+    }
     parts.push(
       `<span class="badge rep">${entry.nationallyRepresentative ? "Nationally representative" : "Site-level"}</span>`
     );
@@ -261,6 +321,7 @@
         (tool) => `
         <label class="tool-option">
           <input type="checkbox" value="${tool}" ${selectedTools.has(tool) ? "checked" : ""}>
+          <span class="tool-swatch" style="background:${toolColor(tool)}"></span>
           ${tool}
         </label>`
       )

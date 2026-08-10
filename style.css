@@ -424,6 +424,13 @@ html, body {
   margin: 0;
 }
 
+.tool-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 .chip-toggle {
   display: flex;
   align-items: center;
