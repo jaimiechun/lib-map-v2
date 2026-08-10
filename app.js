@@ -314,8 +314,10 @@
     statsEl.innerHTML = `<span><b>${total}</b> countries</span><span><b>${completed}</b> completed</span><span><b>${planned}</b> planned only</span>`;
   }
 
-  function renderToolList(group) {
-    const list = group.querySelector(".tool-list");
+  // One shared tool checklist (used regardless of which status is active)
+  // instead of a separate copy under each of the three status pills.
+  function renderToolList() {
+    const list = document.getElementById("tool-list");
     list.innerHTML = allTools
       .map(
         (tool) => `
@@ -335,22 +337,11 @@
     });
   }
 
-  document.querySelectorAll(".filter-group").forEach((group) => {
-    const chip = group.querySelector(".chip");
-    chip.addEventListener("click", () => {
-      const wasActive = group.classList.contains("open");
-      document.querySelectorAll(".filter-group").forEach((g) => {
-        g.classList.remove("open");
-        g.querySelector(".chip").classList.remove("active");
-        g.querySelector(".tool-list").innerHTML = "";
-      });
-      chip.classList.add("active");
-      if (activeStatusFilter !== group.dataset.filter) selectedTools = new Set(allTools);
-      activeStatusFilter = group.dataset.filter;
-      if (!wasActive) {
-        group.classList.add("open");
-        renderToolList(group);
-      }
+  document.querySelectorAll(".status-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".status-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeStatusFilter = btn.dataset.filter;
       renderMarkers();
     });
   });
@@ -712,12 +703,9 @@
     // predates KNOWN_TOOLS being updated.
     const dataTools = countries.flatMap((c) => c.entries.map((e) => e.tool)).filter(Boolean);
     allTools = [...new Set([...KNOWN_TOOLS, ...dataTools])];
-    // Everything is visible on first load, so every tool starts checked and
-    // the active group starts expanded to make that state visible.
+    // Everything is visible on first load, so every tool starts checked.
     selectedTools = new Set(allTools);
-    const activeGroup = document.querySelector('.filter-group[data-filter="all"]');
-    activeGroup.classList.add("open");
-    renderToolList(activeGroup);
+    renderToolList();
     updateStats();
     renderMarkers();
 

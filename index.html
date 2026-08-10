@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Water Insecurity Data Collection Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="style.css?v=1786380729" />
+<link rel="stylesheet" href="style.css?v=1786382545" />
 </head>
 <body>
 <div id="app">
@@ -36,18 +36,13 @@
         <div id="search-results" class="hidden"></div>
       </div>
       <div class="filter-title">See on map</div>
-      <div class="filter-group" data-filter="all">
-        <button class="chip active">All Countries <span class="chev"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span></button>
-        <div class="tool-list"></div>
+      <div id="status-toggle" role="group" aria-label="Status">
+        <button class="status-btn active" data-filter="all">All Countries</button>
+        <button class="status-btn" data-filter="completed">Completed</button>
+        <button class="status-btn" data-filter="planned">Planned</button>
       </div>
-      <div class="filter-group" data-filter="completed">
-        <button class="chip">Completed <span class="chev"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span></button>
-        <div class="tool-list"></div>
-      </div>
-      <div class="filter-group" data-filter="planned">
-        <button class="chip">Planned <span class="chev"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span></button>
-        <div class="tool-list"></div>
-      </div>
+      <div class="filter-title">Tools</div>
+      <div id="tool-list" class="tool-list"></div>
       <label class="chip-toggle">
         <input type="checkbox" id="rep-shading" checked>
         Nationally Representative Data
@@ -141,9 +136,9 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="data/countries.js?v=1786380729"></script>
-<script src="data/borders.js?v=1786380729"></script>
-<script src="data/world.js?v=1786380729"></script>
-<script src="app.js?v=1786380729"></script>
+<script src="data/countries.js?v=1786382545"></script>
+<script src="data/borders.js?v=1786382545"></script>
+<script src="data/world.js?v=1786382545"></script>
+<script src="app.js?v=1786382545"></script>
 </body>
 </html>
