@@ -246,7 +246,43 @@ html, body {
   width: 230px;
   max-width: calc(100% - 24px);
   backdrop-filter: blur(6px);
+  transition: width 0.15s, padding 0.15s;
 }
+
+#panel-toggle {
+  position: absolute;
+  top: 44px;
+  right: -14px;
+  z-index: 501;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 50%;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(20, 30, 40, 0.15);
+}
+
+#panel-toggle svg { transition: transform 0.15s; }
+
+#filter-panel.collapsed {
+  width: auto;
+  padding: 6px;
+}
+
+#filter-panel.collapsed #panel-toggle {
+  position: static;
+  box-shadow: none;
+  border: none;
+}
+
+#filter-panel.collapsed #panel-toggle svg { transform: rotate(180deg); }
+
+#filter-panel.collapsed #panel-body { display: none; }
 
 #search-wrap {
   position: relative;

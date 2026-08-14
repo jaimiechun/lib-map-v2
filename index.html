@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Water Insecurity Data Collection Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="style.css?v=1786383130" />
+<link rel="stylesheet" href="style.css?v=1786734360" />
 </head>
 <body>
 <div id="app">
@@ -25,28 +25,33 @@
 
   <div id="map-wrap">
     <aside id="filter-panel">
-      <div id="search-wrap">
-        <input type="search" id="search-input" placeholder="Search..." autocomplete="off">
-        <button id="search-btn" aria-label="Search">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <circle cx="11" cy="11" r="7"></circle>
-            <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
-          </svg>
-        </button>
-        <div id="search-results" class="hidden"></div>
+      <button id="panel-toggle" title="Collapse filters" aria-expanded="true">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"></polyline></svg>
+      </button>
+      <div id="panel-body">
+        <div id="search-wrap">
+          <input type="search" id="search-input" placeholder="Search..." autocomplete="off">
+          <button id="search-btn" aria-label="Search">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="11" cy="11" r="7"></circle>
+              <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+            </svg>
+          </button>
+          <div id="search-results" class="hidden"></div>
+        </div>
+        <div class="filter-title">See on map</div>
+        <div id="status-toggle" role="group" aria-label="Status">
+          <button class="status-btn active" data-filter="all">All</button>
+          <button class="status-btn" data-filter="completed">Completed</button>
+          <button class="status-btn" data-filter="planned">Planned</button>
+        </div>
+        <div class="filter-title">Tools</div>
+        <div id="tool-list" class="tool-list"></div>
+        <label class="chip-toggle">
+          <input type="checkbox" id="rep-shading" checked>
+          Nationally Representative Data
+        </label>
       </div>
-      <div class="filter-title">See on map</div>
-      <div id="status-toggle" role="group" aria-label="Status">
-        <button class="status-btn active" data-filter="all">All</button>
-        <button class="status-btn" data-filter="completed">Completed</button>
-        <button class="status-btn" data-filter="planned">Planned</button>
-      </div>
-      <div class="filter-title">Tools</div>
-      <div id="tool-list" class="tool-list"></div>
-      <label class="chip-toggle">
-        <input type="checkbox" id="rep-shading" checked>
-        Nationally Representative Data
-      </label>
     </aside>
 
     <button id="expand-btn" title="Open in new tab">⤢</button>
@@ -136,9 +141,9 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="data/countries.js?v=1786383130"></script>
-<script src="data/borders.js?v=1786383130"></script>
-<script src="data/world.js?v=1786383130"></script>
-<script src="app.js?v=1786383130"></script>
+<script src="data/countries.js?v=1786734360"></script>
+<script src="data/borders.js?v=1786734360"></script>
+<script src="data/world.js?v=1786734360"></script>
+<script src="app.js?v=1786734360"></script>
 </body>
 </html>

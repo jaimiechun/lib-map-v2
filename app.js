@@ -83,6 +83,14 @@
     window.open(window.location.href, "_blank");
   });
 
+  const filterPanel = document.getElementById("filter-panel");
+  const panelToggle = document.getElementById("panel-toggle");
+  panelToggle.addEventListener("click", () => {
+    const collapsed = filterPanel.classList.toggle("collapsed");
+    panelToggle.title = collapsed ? "Expand filters" : "Collapse filters";
+    panelToggle.setAttribute("aria-expanded", String(!collapsed));
+  });
+
   let countries = [];
   let markers = [];
   let borderLayer = null;
