@@ -95,7 +95,7 @@
   let markers = [];
   let borderLayer = null;
   let activeStatusFilter = "all";
-  let showRepShading = true;
+  let activeDataType = "all";
   let selectedTools = new Set();
   let allTools = [];
 
@@ -184,6 +184,8 @@
   function entryMatchesFilter(entry) {
     if (activeStatusFilter === "completed" && entry.status !== "Completed") return false;
     if (activeStatusFilter === "planned" && entry.status !== "Planned") return false;
+    if (activeDataType === "national" && !entry.nationallyRepresentative) return false;
+    if (activeDataType === "site" && entry.nationallyRepresentative) return false;
     if (entry.tool && !selectedTools.has(entry.tool)) return false;
     return true;
   }
@@ -192,17 +194,21 @@
     return country.entries.some(entryMatchesFilter);
   }
 
-  // Countries with nationally representative data get their whole territory
-  // shaded. Follows the active filters, and sits under the circle markers.
+  // Countries get their whole territory shaded wherever they have at least
+  // one *currently visible* nationally representative entry - so switching
+  // to the Site-level data-type filter naturally clears the shading instead
+  // of needing a separate toggle for it.
   function renderBorders() {
     if (borderLayer) {
       map.removeLayer(borderLayer);
       borderLayer = null;
     }
-    if (!showRepShading || !window.WISE_BORDERS) return;
+    if (!window.WISE_BORDERS) return;
     const byIso3 = new Map(countries.map((c) => [c.iso3, c]));
     const visible = new Set(
-      countries.filter((c) => c.nationallyRepresentative && passesFilter(c)).map((c) => c.iso3)
+      countries
+        .filter((c) => c.entries.filter(entryMatchesFilter).some((e) => e.nationallyRepresentative))
+        .map((c) => c.iso3)
     );
     borderLayer = L.geoJSON(window.WISE_BORDERS, {
       filter: (feature) => visible.has(feature.id),
@@ -365,11 +371,20 @@
     });
   }
 
-  document.querySelectorAll(".status-btn").forEach((btn) => {
+  document.querySelectorAll("#status-toggle .status-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".status-btn").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll("#status-toggle .status-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       activeStatusFilter = btn.dataset.filter;
+      renderMarkers();
+    });
+  });
+
+  document.querySelectorAll("#datatype-toggle .status-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#datatype-toggle .status-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeDataType = btn.dataset.datatype;
       renderMarkers();
     });
   });
@@ -622,9 +637,9 @@
     if (!globe) return;
     const visible = countries.filter(passesFilter);
     const rep = new Set(
-      showRepShading
-        ? countries.filter((c) => c.nationallyRepresentative && passesFilter(c)).map((c) => c.iso3)
-        : []
+      countries
+        .filter((c) => c.entries.filter(entryMatchesFilter).some((e) => e.nationallyRepresentative))
+        .map((c) => c.iso3)
     );
     globe
       .polygonCapColor((f) => (rep.has(f.id) ? "rgba(130, 174, 243, 0.9)" : "#f7f7f4"))
@@ -710,12 +725,6 @@
   });
   document.addEventListener("click", (e) => {
     if (!e.target.closest("#search-wrap")) searchResults.classList.add("hidden");
-  });
-
-  document.getElementById("rep-shading").addEventListener("change", (e) => {
-    showRepShading = e.target.checked;
-    renderBorders();
-    updateGlobe();
   });
 
   // Data is loaded via a <script> tag (data/countries.js) rather than fetch()
