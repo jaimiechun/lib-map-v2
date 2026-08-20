@@ -109,52 +109,72 @@
     return Math.min(6 + Math.sqrt(entryCount) * 3, 20) * zoomScale();
   }
 
-  // One marker cluster per tool used in that country (counting only entries
-  // that pass the active status/tool filters), colored per TOOL_COLORS.
-  // Status within each tool's cluster still reads via opacity: solid =
-  // completed, translucent = planned, core+halo = mixed (same language as
-  // before, just recolored and split by tool). Multiple tools in one
-  // country get nudged into a small ring around the centroid so they don't
-  // fully overlap; a single-tool country sits exactly on the centroid.
+  // Site-level entries carry their own real coordinates (e.g. Louisiana vs.
+  // Ohio are genuinely different points) and are plotted there directly.
+  // Only entries with no specific site (national-level surveys) fall back
+  // to the country centroid. Within any single point, entries are further
+  // split by tool and colored per TOOL_COLORS; if more than one tool lands
+  // on the exact same point, they're nudged into a small ring so they don't
+  // fully overlap. Status still reads via opacity: solid = completed,
+  // translucent = planned, core+halo = mixed.
   function markersFor(country) {
     const visibleEntries = country.entries.filter(entryMatchesFilter);
-    const byTool = new Map();
+
+    // Group by (real coordinate, or country centroid) + tool.
+    const groups = new Map();
     visibleEntries.forEach((e) => {
-      const key = e.tool || "Other";
-      if (!byTool.has(key)) byTool.set(key, []);
-      byTool.get(key).push(e);
+      const hasCoords = typeof e.lat === "number" && typeof e.lng === "number";
+      const lat = hasCoords ? e.lat : country.lat;
+      const lng = hasCoords ? e.lng : country.lng;
+      const locKey = hasCoords ? `${e.lat.toFixed(4)},${e.lng.toFixed(4)}` : "centroid";
+      const tool = e.tool || "Other";
+      const key = `${locKey}|${tool}`;
+      if (!groups.has(key)) groups.set(key, { lat, lng, locKey, tool, entries: [] });
+      groups.get(key).entries.push(e);
     });
-    const tools = [...byTool.keys()];
+
+    // Cluster tool-groups that share the same point so overlapping ones can
+    // be nudged apart; the centroid fallback uses a wider ring since many
+    // unrelated entries can land there, real sites use a tighter one.
+    const byLocation = new Map();
+    groups.forEach((g) => {
+      if (!byLocation.has(g.locKey)) byLocation.set(g.locKey, []);
+      byLocation.get(g.locKey).push(g);
+    });
+
     const layers = [];
+    byLocation.forEach((groupsAtLoc) => {
+      const offsetDeg = groupsAtLoc[0].locKey === "centroid" ? 1.1 : 0.35;
+      groupsAtLoc.forEach((g, i) => {
+        let lat = g.lat;
+        let lng = g.lng;
+        if (groupsAtLoc.length > 1) {
+          const angle = (2 * Math.PI * i) / groupsAtLoc.length;
+          const latCos = Math.max(Math.cos((g.lat * Math.PI) / 180), 0.2);
+          lat += offsetDeg * Math.sin(angle);
+          lng += (offsetDeg * Math.cos(angle)) / latCos;
+        }
 
-    tools.forEach((tool, i) => {
-      const entries = byTool.get(tool);
-      const color = toolColor(tool);
-      const radius = radiusFor(entries.length);
-      const status = aggregateStatus(entries);
+        const color = toolColor(g.tool);
+        const radius = radiusFor(g.entries.length);
+        const status = aggregateStatus(g.entries);
+        const base = { className: "wise-marker", weight: 0, fillColor: color };
+        const filterInfo = { entries: g.entries, label: entryTitle(g.entries[0]) };
+        const addMarker = (r, opacity) => {
+          const marker = L.circleMarker([lat, lng], { ...base, radius: r, fillOpacity: opacity });
+          marker.on("click", () => showDetail(country, filterInfo));
+          layers.push(marker);
+        };
 
-      let lat = country.lat;
-      let lng = country.lng;
-      if (tools.length > 1) {
-        const angle = (2 * Math.PI * i) / tools.length;
-        const offsetDeg = 1.1;
-        const latCos = Math.max(Math.cos((country.lat * Math.PI) / 180), 0.2);
-        lat += offsetDeg * Math.sin(angle);
-        lng += (offsetDeg * Math.cos(angle)) / latCos;
-      }
-
-      const base = { className: "wise-marker", weight: 0, fillColor: color };
-      if (status === "completed") {
-        layers.push(L.circleMarker([lat, lng], { ...base, radius, fillOpacity: 1 }));
-      } else if (status === "planned") {
-        layers.push(L.circleMarker([lat, lng], { ...base, radius, fillOpacity: 0.35 }));
-      } else {
-        layers.push(L.circleMarker([lat, lng], { ...base, radius: radius * 1.6, fillOpacity: 0.3 }));
-        layers.push(L.circleMarker([lat, lng], { ...base, radius: radius * 0.75, fillOpacity: 1 }));
-      }
+        if (status === "completed") addMarker(radius, 1);
+        else if (status === "planned") addMarker(radius, 0.35);
+        else {
+          addMarker(radius * 1.6, 0.3);
+          addMarker(radius * 0.75, 1);
+        }
+      });
     });
 
-    layers.forEach((l) => l.on("click", () => showDetail(country)));
     return layers;
   }
 
