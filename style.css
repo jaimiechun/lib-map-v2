@@ -320,7 +320,7 @@ html, body {
   height: 38px;
   border-radius: 50%;
   border: none;
-  background: #cdeade;
+  background: rgba(0, 174, 229, 0.25);
   color: var(--ink);
   display: flex;
   align-items: center;
@@ -330,7 +330,7 @@ html, body {
   transition: background 0.15s;
 }
 
-#search-btn:hover { background: #bfe3d3; }
+#search-btn:hover { background: rgba(0, 174, 229, 0.35); }
 
 #search-results {
   position: absolute;
@@ -423,7 +423,7 @@ html, body {
 .status-btn:hover { background: #f2f9f7; }
 
 .status-btn.active {
-  background: #cdeade;
+  background: rgba(0, 174, 229, 0.25);
   color: var(--ink);
 }
 
