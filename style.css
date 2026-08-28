@@ -282,6 +282,12 @@ html, body {
 
 #filter-panel.collapsed #panel-toggle svg { transform: rotate(180deg); }
 
+#panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 #filter-panel.collapsed #panel-body { display: none; }
 
 #search-wrap {
@@ -395,6 +401,13 @@ html, body {
   color: var(--muted);
   font-weight: 600;
   margin-bottom: 2px;
+}
+
+.filter-subtitle {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 600;
+  margin: 2px 0 -2px 2px;
 }
 
 #status-toggle,
