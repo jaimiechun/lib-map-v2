@@ -41,11 +41,9 @@ html, body {
   gap: 10px;
 }
 
-#brand-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--teal);
+#brand-logo {
+  height: 28px;
+  width: auto;
   flex-shrink: 0;
 }
 
