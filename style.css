@@ -223,8 +223,7 @@ html, body {
 #map {
   position: absolute;
   inset: 0;
-  /* Sea: #F7FFB2 at 45% over white */
-  background: rgba(247, 255, 178, 0.45);
+  background: #20B2AA;
 }
 
 /* Filter panel */
