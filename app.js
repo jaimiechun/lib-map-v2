@@ -234,6 +234,9 @@
     updateGlobe();
     markers.forEach((m) => map.removeLayer(m));
     markers = [];
+    // Nationally Rep mode shows only the shaded territories, no dots - a
+    // country's national coverage is its whole shaded region, not a point.
+    if (activeDataType === "national") return;
     countries.filter(passesFilter).forEach((country) => {
       markersFor(country).forEach((marker) => {
         marker.addTo(map);
@@ -646,7 +649,8 @@
 
   function updateGlobe() {
     if (!globe) return;
-    const visible = countries.filter(passesFilter);
+    // Nationally Rep mode shows only the shaded territories, no points.
+    const visible = activeDataType === "national" ? [] : countries.filter(passesFilter);
     const rep = new Set(
       countries
         .filter((c) => c.entries.filter(entryMatchesFilter).some((e) => e.nationallyRepresentative))
