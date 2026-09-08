@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Water Insecurity Data Collection Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="style.css?v=1788447218" />
+<link rel="stylesheet" href="style.css?v=1788884354" />
 </head>
 <body>
 <div id="app">
@@ -52,7 +52,14 @@
           <button class="status-btn" data-datatype="national">Nationally Rep</button>
           <button class="status-btn" data-datatype="site">Site-level</button>
         </div>
-        <div class="filter-title">Tools</div>
+        <div id="tools-header">
+          <span class="filter-title">Tools</span>
+          <span class="tools-bulk">
+            <button type="button" id="tools-check-all">Check all</button>
+            <span aria-hidden="true">·</span>
+            <button type="button" id="tools-uncheck-all">Uncheck all</button>
+          </span>
+        </div>
         <div id="tool-list" class="tool-list"></div>
       </div>
     </aside>
@@ -144,9 +151,9 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="data/countries.js?v=1788447218"></script>
-<script src="data/borders.js?v=1788447218"></script>
-<script src="data/world.js?v=1788447218"></script>
-<script src="app.js?v=1788447218"></script>
+<script src="data/countries.js?v=1788884354"></script>
+<script src="data/borders.js?v=1788884354"></script>
+<script src="data/world.js?v=1788884354"></script>
+<script src="app.js?v=1788884354"></script>
 </body>
 </html>

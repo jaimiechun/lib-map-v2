@@ -401,6 +401,36 @@ html, body {
   margin-bottom: 2px;
 }
 
+#tools-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#tools-header .filter-title { margin-bottom: 0; }
+
+.tools-bulk {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.tools-bulk button {
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--teal);
+  cursor: pointer;
+}
+
+.tools-bulk button:hover { text-decoration: underline; }
+
 .filter-subtitle {
   font-size: 10px;
   color: var(--muted);

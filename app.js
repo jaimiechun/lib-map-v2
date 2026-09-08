@@ -371,6 +371,17 @@
     });
   }
 
+  document.getElementById("tools-check-all").addEventListener("click", () => {
+    selectedTools = new Set(allTools);
+    renderToolList();
+    renderMarkers();
+  });
+  document.getElementById("tools-uncheck-all").addEventListener("click", () => {
+    selectedTools = new Set();
+    renderToolList();
+    renderMarkers();
+  });
+
   document.querySelectorAll("#status-toggle .status-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       document.querySelectorAll("#status-toggle .status-btn").forEach((b) => b.classList.remove("active"));
