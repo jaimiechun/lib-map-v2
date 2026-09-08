@@ -212,6 +212,18 @@
     return country.entries.some(entryMatchesFilter);
   }
 
+  // Same as entryMatchesFilter but ignores the tool checklist: shading marks
+  // whether a country HAS nationally representative coverage at all, which
+  // shouldn't disappear just because someone unchecked every tool (that
+  // checklist only exists to filter which dots show).
+  function entryMatchesShading(entry) {
+    if (activeStatusFilter === "completed" && entry.status !== "Completed") return false;
+    if (activeStatusFilter === "planned" && entry.status !== "Planned") return false;
+    if (activeDataType === "national" && !entry.nationallyRepresentative) return false;
+    if (activeDataType === "site" && entry.nationallyRepresentative) return false;
+    return true;
+  }
+
   // Countries get their whole territory shaded wherever they have at least
   // one *currently visible* nationally representative entry - so switching
   // to the Site-level data-type filter naturally clears the shading instead
@@ -225,7 +237,7 @@
     const byIso3 = new Map(countries.map((c) => [c.iso3, c]));
     const visible = new Set(
       countries
-        .filter((c) => c.entries.filter(entryMatchesFilter).some((e) => e.nationallyRepresentative))
+        .filter((c) => c.entries.filter(entryMatchesShading).some((e) => e.nationallyRepresentative))
         .map((c) => c.iso3)
     );
     borderLayer = L.geoJSON(window.WISE_BORDERS, {
@@ -725,7 +737,7 @@
     const visible = activeDataType === "national" ? [] : countries.filter(passesFilter);
     const rep = new Set(
       countries
-        .filter((c) => c.entries.filter(entryMatchesFilter).some((e) => e.nationallyRepresentative))
+        .filter((c) => c.entries.filter(entryMatchesShading).some((e) => e.nationallyRepresentative))
         .map((c) => c.iso3)
     );
     globe
