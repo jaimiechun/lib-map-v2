@@ -321,6 +321,10 @@
   // Optional filter ({entries, label}) narrows the card to a subset — used
   // when arriving from a contact/source search hit, so e.g. searching a
   // researcher shows only their entries, not everything in that country.
+  // filter: { entries, label, heading? }. When heading is set (person
+  // search results, which can span multiple countries) it replaces the
+  // country name and the separate "Showing matches for" note is dropped
+  // since the heading already says who/what this card is scoped to.
   function showDetail(country, filter) {
     const entries = filter ? filter.entries : country.entries;
     const completedCount = entries.filter((e) => e.status === "Completed").length;
@@ -329,13 +333,14 @@
     const summaryParts = [`${completedCount} completed`];
     if (ongoingCount) summaryParts.push(`${ongoingCount} ongoing`);
     if (plannedCount) summaryParts.push(`${plannedCount} planned`);
+    const heading = filter && filter.heading ? filter.heading : country.name;
     detailContent.innerHTML = `
-      <p class="detail-country">${country.name}</p>
+      <p class="detail-country">${heading}</p>
       <p class="detail-summary">
         ${entries.length} data ${entries.length === 1 ? "entry" : "entries"}
         · ${summaryParts.join(" · ")}
       </p>
-      ${filter ? `
+      ${filter && !filter.heading ? `
         <div class="detail-filter-note">
           Showing matches for “${filter.label}”
         </div>` : ""}
@@ -415,12 +420,51 @@
     searchInput.value = "";
   }
 
+  // For person/source hits, which can span multiple countries: fit the map
+  // to every matched point instead of centering on just one country.
+  function focusPoints(points, filter) {
+    if (points.length === 1) {
+      map.setView(points[0], 5);
+    } else {
+      map.fitBounds(L.latLngBounds(points), { padding: [60, 60], maxZoom: 5 });
+    }
+    if (globeActive && globe) {
+      const lat = points.reduce((s, p) => s + p[0], 0) / points.length;
+      const lng = points.reduce((s, p) => s + p[1], 0) / points.length;
+      globe.pointOfView({ lat, lng, altitude: 1.4 }, 800);
+    }
+    showDetail(null, filter);
+    searchResults.classList.add("hidden");
+    searchInput.value = "";
+  }
+
   function resultButton(label, sub, country, filter) {
     const btn = document.createElement("button");
     btn.className = "search-result";
     btn.innerHTML = `${label}${sub ? `<span class="result-sub">${sub}</span>` : ""}`;
     btn.addEventListener("click", () => focusCountry(country, filter));
     return btn;
+  }
+
+  function personResultButton(label, sub, points, filter) {
+    const btn = document.createElement("button");
+    btn.className = "search-result";
+    btn.innerHTML = `${label}${sub ? `<span class="result-sub">${sub}</span>` : ""}`;
+    btn.addEventListener("click", () => focusPoints(points, filter));
+    return btn;
+  }
+
+  // Turns a raw contact email into a readable name: "vanessa.bly@..." ->
+  // "Vanessa Bly". Non-email fields (survey/source names) pass through
+  // unchanged since they're already human-readable.
+  function personDisplayName(field) {
+    if (!field.includes("@")) return field;
+    const local = field.split("@")[0];
+    return local
+      .split(/[._-]+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ");
   }
 
   // Every whitespace-separated token must appear in the field, so
@@ -462,21 +506,26 @@
       });
     });
 
-    // People/organizations: match against contact emails and survey sources,
-    // remembering which entries matched so the card can show just those.
+    // People/organizations: match against contact emails and survey sources.
+    // Grouped by the field alone (not per-country) so someone involved
+    // across multiple countries shows as one consolidated result covering
+    // every site they touched, not a separate row per country.
     const personHits = [];
     const seen = new Map();
     countries.forEach((c) => {
       c.entries.forEach((e) => {
         [e.contact, e.source].forEach((field) => {
           if (!fieldMatches(field, tokens)) return;
-          const key = field + "|" + c.iso3;
-          if (!seen.has(key)) {
-            const hit = { field, country: c, entries: [] };
-            seen.set(key, hit);
+          if (!seen.has(field)) {
+            const hit = { field, entries: [], countries: new Set(), points: [] };
+            seen.set(field, hit);
             personHits.push(hit);
           }
-          if (!seen.get(key).entries.includes(e)) seen.get(key).entries.push(e);
+          const hit = seen.get(field);
+          if (!hit.entries.includes(e)) hit.entries.push(e);
+          hit.countries.add(c);
+          const point = typeof e.lat === "number" ? [e.lat, e.lng] : [c.lat, c.lng];
+          if (!hit.points.some((p) => p[0] === point[0] && p[1] === point[1])) hit.points.push(point);
         });
       });
     });
@@ -502,8 +551,13 @@
       title.className = "search-group-title";
       title.textContent = "Contacts & sources";
       searchResults.appendChild(title);
-      personHits.slice(0, 10).forEach(({ field, country, entries }) => {
-        searchResults.appendChild(resultButton(country.name, field, country, { entries, label: field }));
+      personHits.slice(0, 10).forEach(({ field, entries, countries: hitCountries, points }) => {
+        const name = personDisplayName(field);
+        const countryList = [...hitCountries].map((c) => c.name);
+        const sub = countryList.length > 1 ? `${countryList.length} countries` : countryList[0];
+        searchResults.appendChild(
+          personResultButton(name, sub, points, { entries, heading: `Showing results for ${name}` })
+        );
       });
     }
     if (!countryHits.length && !locationHits.length && !personHits.length) {
