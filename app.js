@@ -69,7 +69,25 @@
       color: "#c6cbd4",
       weight: 0.7,
     },
+    onEachFeature: (feature, layer) => {
+      const name = feature.properties && feature.properties.name;
+      if (!name) return;
+      layer.bindTooltip(name, {
+        permanent: true,
+        direction: "center",
+        className: "country-label",
+      });
+    },
   }).addTo(map);
+
+  // Country name labels only past a certain zoom - all ~184 of them at once
+  // would be unreadable clutter at the world view.
+  const LABEL_MIN_ZOOM = 4;
+  function updateLabelVisibility() {
+    map.getContainer().classList.toggle("labels-hidden", map.getZoom() < LABEL_MIN_ZOOM);
+  }
+  map.on("zoomend", updateLabelVisibility);
+  updateLabelVisibility();
 
   const detailCard = document.getElementById("detail-card");
   const detailContent = document.getElementById("detail-content");
