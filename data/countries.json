@@ -1757,6 +1757,19 @@
         "contact": "frederickgbgoddard@gmail.com"
       },
       {
+        "level": "site",
+        "location": "Volta & Central Regions",
+        "lat": 5.85,
+        "lng": -0.39,
+        "tool": "Healthcare Facility (HCF) - WISE",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": null,
+        "contact": null
+      },
+      {
         "level": "national",
         "location": null,
         "lat": null,
@@ -3288,6 +3301,32 @@
         "contact": "scott.miller@charitywater.org"
       },
       {
+        "level": "site",
+        "location": "Cabo Delgado & Nampula Provinces",
+        "lat": -13.7,
+        "lng": 39.4,
+        "tool": "SCHOOL-WISE",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": null,
+        "contact": null
+      },
+      {
+        "level": "site",
+        "location": "Cabo Delgado & Nampula Provinces",
+        "lat": -13.7,
+        "lng": 39.4,
+        "tool": "Healthcare Facility (HCF) - WISE",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": null,
+        "contact": null
+      },
+      {
         "level": "national",
         "location": null,
         "lat": null,
@@ -3655,6 +3694,32 @@
         "dates": "Expected Mid/Late 2025",
         "link": "https://www.charitywater.org/",
         "contact": "scott.miller@charitywater.org"
+      },
+      {
+        "level": "site",
+        "location": "Bardiya, Surkhet & Dailekh Districts",
+        "lat": 28.58,
+        "lng": 81.57,
+        "tool": "SCHOOL-WISE",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": null,
+        "contact": null
+      },
+      {
+        "level": "site",
+        "location": "Bardiya, Surkhet & Dailekh Districts",
+        "lat": 28.58,
+        "lng": 81.57,
+        "tool": "Healthcare Facility (HCF) - WISE",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": null,
+        "contact": null
       }
     ]
   },
@@ -4120,7 +4185,7 @@
     "name": "Rwanda",
     "lat": -2,
     "lng": 30,
-    "status": "planned",
+    "status": "mixed",
     "nationallyRepresentative": false,
     "entries": [
       {
@@ -4135,6 +4200,19 @@
         "dates": "Expected Mid/Late 2025",
         "link": "https://www.charitywater.org/",
         "contact": "scott.miller@charitywater.org"
+      },
+      {
+        "level": "site",
+        "location": "Muhanga, Musanze, Kamonyi & Gicumbi Districts",
+        "lat": -1.83,
+        "lng": 29.83,
+        "tool": "SCHOOL-WISE",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": null,
+        "contact": null
       }
     ]
   },
@@ -4900,6 +4978,32 @@
         "dates": "Feb 2025 (dry season) & June 2025 (Wassa East) and Oct 2025 (Asutifi North) (wet seeason)",
         "link": null,
         "contact": "anna.murray@aquaya.org"
+      },
+      {
+        "level": "site",
+        "location": "Wobulenzi & Kakooge",
+        "lat": 0.75,
+        "lng": 32.54,
+        "tool": "SCHOOL-WISE",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": null,
+        "contact": null
+      },
+      {
+        "level": "site",
+        "location": "Wobulenzi & Kakooge",
+        "lat": 0.75,
+        "lng": 32.54,
+        "tool": "Healthcare Facility (HCF) - WISE",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": null,
+        "contact": null
       },
       {
         "level": "national",
