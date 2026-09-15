@@ -27,13 +27,6 @@
   function toolColor(tool) {
     return TOOL_COLORS[tool] || TEAL;
   }
-  // Picks readable text color against a given fill (used on badges/swatches).
-  function contrastText(hex) {
-    const n = parseInt(hex.slice(1), 16);
-    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    return luminance > 0.6 ? "#1c2430" : "#fff";
-  }
   // Mirrors scripts/build_data.py's country-level status aggregation, but
   // applied per tool-group so each tool's dot reflects only its own entries.
   function aggregateStatus(entries) {
@@ -64,9 +57,9 @@
   const worldLayer = L.geoJSON(window.WISE_WORLD, {
     interactive: false,
     style: {
-      fillColor: "#f7f7f4",
+      fillColor: "#fbfaf6",
       fillOpacity: 1,
-      color: "#c6cbd4",
+      color: "#d6d0c5",
       weight: 0.7,
     },
     onEachFeature: (feature, layer) => {
@@ -280,9 +273,8 @@
     const statusClass = entry.status.toLowerCase();
     parts.push(`<span class="badge ${statusClass}">${entry.status}</span>`);
     if (entry.tool) {
-      const bg = toolColor(entry.tool);
       parts.push(
-        `<span class="badge tool" style="background:${bg};color:${contrastText(bg)}">${entry.tool}</span>`
+        `<span class="badge tool"><span class="badge-dot" style="background:${toolColor(entry.tool)}"></span>${entry.tool}</span>`
       );
     }
     parts.push(
