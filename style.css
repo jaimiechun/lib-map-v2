@@ -338,7 +338,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  width: 256px;
+  width: 272px;
   max-width: calc(100% - 28px);
   max-height: calc(100% - 28px);
   backdrop-filter: blur(8px);
@@ -609,6 +609,26 @@ html, body {
   flex-shrink: 0;
 }
 
+#tools-learn-more {
+  display: block;
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 2px;
+}
+
+#tools-learn-more:hover {
+  color: var(--ink);
+  text-decoration-color: var(--ink);
+}
+
 /* ---------- Floating map buttons ---------- */
 #expand-btn,
 #globe-btn {
@@ -845,6 +865,83 @@ html, body {
 .info-btn-arrow {
   color: var(--muted);
   font-size: 12px;
+}
+
+/* Country poster: click-through to the DOI, washed out on hover with a
+   centered "Open" pill (the iframe swallows pointer events, so the cover
+   sits above it and carries the click). */
+.poster {
+  position: relative;
+  display: block;
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  aspect-ratio: 8.5 / 11;
+  text-decoration: none !important;
+}
+
+/* The poster eases up into place as the card opens, so it reads as arriving
+   rather than being there all along. */
+@keyframes poster-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.poster { animation: poster-rise 0.45s 0.1s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .poster { animation: none; }
+}
+
+.poster-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+  object-position: top;
+  pointer-events: none;
+}
+
+/* Canva's viewer paints its own toolbar along the bottom of the frame;
+   overhang it past the card's clipped edge so the thumbnail is just poster. */
+iframe.poster-media {
+  height: calc(100% + 42px);
+  object-fit: none;
+}
+
+.poster-cover {
+  position: absolute;
+  inset: 0;
+  background: rgba(253, 252, 250, 0);
+  transition: background 0.15s;
+}
+
+.poster-open {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(34, 33, 30, 0.72);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: 999px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+
+.poster:hover .poster-cover { background: rgba(253, 252, 250, 0.72); }
+.poster:hover .poster-open,
+.poster:focus-visible .poster-open { opacity: 1; }
+
+.poster:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 
 @media (max-width: 480px) {

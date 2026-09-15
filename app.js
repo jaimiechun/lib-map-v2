@@ -340,6 +340,29 @@
       .join("");
   }
 
+  // Country poster (Canva design) shown at the foot of the card, clicking
+  // through to that country's DOI. Only countries with both a design and a
+  // DOI are in data/posters.js, so there's nothing to render otherwise.
+  // A poster entry carries `image` (a PNG exported from Canva, the normal
+  // case) or `embed` (Canva's own viewer, the fallback before a PNG exists),
+  // so changing how a poster is served is a data-only change.
+  function posterHtml(country) {
+    const poster = window.WISE_POSTERS && window.WISE_POSTERS[country.iso3];
+    if (!poster || !poster.doi) return "";
+    const alt = `Water insecurity brief for ${country.name}`;
+    const media = poster.image
+      ? `<img class="poster-media" src="${poster.image}" alt="${alt}" loading="lazy">`
+      : `<iframe class="poster-media" src="${poster.embed}" title="${alt}" loading="lazy" allowfullscreen></iframe>`;
+    return `
+      <a class="poster" href="${poster.doi}" target="_blank" rel="noopener"
+         aria-label="Open the ${country.name} water insecurity brief (DOI)">
+        ${media}
+        <span class="poster-cover"></span>
+        <span class="poster-open">Open <span aria-hidden="true">↗</span></span>
+      </a>
+    `;
+  }
+
   // Optional filter ({entries, label}) narrows the card to a subset — used
   // when arriving from a contact/source search hit, so e.g. searching a
   // researcher shows only their entries, not everything in that country.
@@ -367,6 +390,7 @@
           Showing matches for “${filter.label}”
         </div>` : ""}
       ${groupedEntriesHtml(entries)}
+      ${filter && filter.heading ? "" : posterHtml(country)}
     `;
     detailCard.classList.remove("hidden");
   }

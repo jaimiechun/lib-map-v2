@@ -22,6 +22,51 @@ python3 scripts/build_borders.py  # -> data/borders.js + data/world.js
 it can't match (typos, new spellings). Fix the CSV or add an alias to
 `COUNTRY_ALIASES` in the script, re-run, then commit and push.
 
+## Country posters
+
+Each country card can show its Canva poster at the bottom, clicking through to
+that country's DOI. The pairing comes from the DOI-tracker Google Sheet
+(column M = Canva link, column S = DOI); rebuild it with:
+
+```
+python3 scripts/build_posters.py
+```
+
+That writes `data/posters.js`. Only countries with **both** a Canva link and a
+DOI are included — the poster's whole purpose is to be a route to the DOI — so
+re-run it as more DOIs are filled in. The script prints which countries it
+skipped for a missing DOI, and which names it couldn't match.
+
+### Poster images
+
+Posters are served as PNGs exported from Canva and committed to
+`assets/posters/<ISO3>.png`. After a bulk download from Canva (select the
+designs in Projects → Download → PNG), import them with:
+
+```
+python3 scripts/import_posters.py ~/Downloads/canva-posters
+```
+
+That matches each file to a country by the country name in the Canva title,
+copies it in under its ISO3 code, downscales it for the web, and points
+`data/posters.js` at the local file. It reports anything it couldn't match, and
+which posters are waiting on a DOI.
+
+**Do not fall back to Canva embeds.** `build_posters.py` emits an `embed` URL
+for any country that has a DOI but no PNG yet, and the card will render it in
+an iframe — but that is a stopgap, for two reasons:
+
+1. **The share token is public.** A Canva link is
+   `/design/<id>/<token>/...`, and if the design is shared as "anyone with the
+   link can edit", that same token opens the *editor*. Publishing it here puts
+   edit access to the poster on the open web. Set the designs to view-only in
+   Canva, or avoid the embed entirely.
+2. **It's slow.** Each embed loads Canva's whole viewer app — several seconds
+   before the poster appears, on every card open.
+
+So when a new DOI lands, export that country's PNG and run
+`import_posters.py` rather than leaving the embed in place.
+
 ## Deploying / cache-busting
 
 The site is served via GitHub Pages straight from `main`. Browsers (and
