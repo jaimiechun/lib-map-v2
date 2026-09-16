@@ -354,8 +354,8 @@
       ? `<img class="poster-media" src="${poster.image}" alt="${alt}" loading="lazy">`
       : `<iframe class="poster-media" src="${poster.embed}" title="${alt}" loading="lazy" allowfullscreen></iframe>`;
     return `
-      <a class="poster" href="${poster.doi}" target="_blank" rel="noopener"
-         aria-label="Open the ${country.name} water insecurity brief (DOI)">
+      <a class="poster" href="${poster.image || poster.doi}" target="_blank" rel="noopener"
+         aria-label="Open the full ${country.name} water insecurity brief">
         ${media}
         <span class="poster-cover"></span>
         <span class="poster-open">Open <span aria-hidden="true">↗</span></span>

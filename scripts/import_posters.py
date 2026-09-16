@@ -29,9 +29,11 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 POSTER_DIR = ROOT / "assets" / "posters"
 
-# Longest edge of the stored PNG. Posters are decorative thumbnails in a ~300px
-# card; 1200px keeps them crisp on retina without shipping 20MB of print art.
-MAX_PX = 1200
+# Longest edge of the stored PNG. Clicking a poster opens this same file
+# full-size, so it has to stay readable — not just sharp as a ~300px card
+# thumbnail. Canva's exports land around 2000px, comfortably under this, so in
+# practice they're kept as-is; the cap only guards against a huge export.
+MAX_PX = 2400
 
 # Canva titles don't always use the same country spelling as the map data.
 TITLE_ALIASES = {
@@ -76,8 +78,20 @@ def match_country(filename, names_by_iso3):
 
 
 def downscale(dest):
-    """Shrinks in place with macOS `sips`; a no-op elsewhere."""
+    """Shrinks in place with macOS `sips`; a no-op elsewhere.
+
+    `sips -Z` resamples to the given size in *either* direction, so an export
+    smaller than MAX_PX would be upscaled — a bigger file carrying no more
+    detail. Measure first and only act when the image is genuinely too big.
+    """
     if not shutil.which("sips"):
+        return
+    probe = subprocess.run(
+        ["sips", "-g", "pixelWidth", "-g", "pixelHeight", str(dest)],
+        capture_output=True, text=True, check=False,
+    )
+    sizes = [int(n) for n in re.findall(r"pixel(?:Width|Height):\s*(\d+)", probe.stdout)]
+    if not sizes or max(sizes) <= MAX_PX:
         return
     subprocess.run(
         ["sips", "-Z", str(MAX_PX), str(dest)],
