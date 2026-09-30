@@ -42,8 +42,43 @@
   const SUBMIT_ENDPOINT = "https://formspree.io/f/xeajjpzr";
   const SUBMIT_EMAIL = "sera.young@northwestern.edu";
 
+  // Equal-area projection (cylindrical equal-area, Behrmann standard parallel
+  // 30°) instead of Leaflet's default Web Mercator. Mercator inflates area
+  // with latitude — Greenland reads as large as Africa — which misrepresents
+  // this dataset in particular: coverage is concentrated near the equator
+  // (Sub-Saharan Africa alone is ~48% of all entries) exactly where Mercator
+  // shrinks, while the near-empty high latitudes dominate the frame. Equal
+  // area keeps every country's screen area proportional to its real area.
+  //
+  // This is only practical because the basemap is vector (data/world.js); a
+  // raster tile layer would be locked to the projection its tiles were cut in.
+  const PHI0 = (30 * Math.PI) / 180; // standard parallel
+  const K = Math.cos(PHI0) ** 2; // horizontal squeeze / vertical stretch
+  const DEG = Math.PI / 180;
+
+  const EqualAreaProjection = {
+    project(latlng) {
+      return new L.Point(latlng.lng * DEG * K, Math.sin(latlng.lat * DEG) / K);
+    },
+    unproject(point) {
+      const sinLat = Math.max(-1, Math.min(1, point.y * K));
+      return new L.LatLng(Math.asin(sinLat) / DEG, point.x / K / DEG);
+    },
+    bounds: L.bounds([-Math.PI * K, -1 / K], [Math.PI * K, 1 / K]),
+  };
+
+  // Scale x and y by the same factor so equal-area actually holds on screen;
+  // the world then spans 1 unit wide (256px at zoom 0) and 2/(pi*K*K) as tall.
+  const UNIT = 1 / (2 * Math.PI * K);
+
+  const EqualAreaCRS = L.extend({}, L.CRS.Earth, {
+    code: "WISE:CylindricalEqualArea",
+    projection: EqualAreaProjection,
+    transformation: new L.Transformation(UNIT, 0.5, -UNIT, 0.5),
+  });
+
   const map = L.map("map", {
-    worldCopyJump: true,
+    crs: EqualAreaCRS,
     minZoom: 2,
     maxZoom: 7,
     zoomControl: false,
