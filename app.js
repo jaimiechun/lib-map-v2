@@ -42,38 +42,66 @@
   const SUBMIT_ENDPOINT = "https://formspree.io/f/xeajjpzr";
   const SUBMIT_EMAIL = "sera.young@northwestern.edu";
 
-  // Equal-area projection (cylindrical equal-area, Behrmann standard parallel
-  // 30°) instead of Leaflet's default Web Mercator. Mercator inflates area
-  // with latitude — Greenland reads as large as Africa — which misrepresents
-  // this dataset in particular: coverage is concentrated near the equator
-  // (Sub-Saharan Africa alone is ~48% of all entries) exactly where Mercator
-  // shrinks, while the near-empty high latitudes dominate the frame. Equal
-  // area keeps every country's screen area proportional to its real area.
+  // Equal Earth projection (Šavrič, Patterson & Jenny, 2018) instead of
+  // Leaflet's default Web Mercator. Mercator inflates area with latitude —
+  // Greenland reads as large as Africa — which misrepresents this dataset in
+  // particular: coverage concentrates near the equator (Sub-Saharan Africa
+  // alone is ~48% of all entries) exactly where Mercator shrinks land, while
+  // the near-empty high latitudes dominate the frame.
   //
-  // This is only practical because the basemap is vector (data/world.js); a
-  // raster tile layer would be locked to the projection its tiles were cut in.
-  const PHI0 = (30 * Math.PI) / 180; // standard parallel
-  const K = Math.cos(PHI0) ** 2; // horizontal squeeze / vertical stretch
+  // Equal Earth is equal-area — every country's screen area stays proportional
+  // to its true area — but curves the meridians, so equatorial landmasses keep
+  // recognisable shapes instead of the vertical stretching a cylindrical
+  // equal-area projection gives them.
+  //
+  // Implemented directly from the published polynomial rather than pulling in
+  // proj4 + Proj4Leaflet, keeping the site dependency-free. This is only
+  // practical at all because the basemap is vector (data/world.js); raster
+  // tiles would be locked to the projection they were cut in.
   const DEG = Math.PI / 180;
+  const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796;
+  const M = Math.sqrt(3) / 2;
 
-  const EqualAreaProjection = {
+  // y(θ) and its derivative, shared by the forward and inverse transforms.
+  const eqEarthY = (t) => t * (A1 + A2 * t * t + t ** 6 * (A3 + A4 * t * t));
+  const eqEarthDY = (t) => A1 + 3 * A2 * t * t + t ** 6 * (7 * A3 + 9 * A4 * t * t);
+
+  const EqualEarthProjection = {
     project(latlng) {
-      return new L.Point(latlng.lng * DEG * K, Math.sin(latlng.lat * DEG) / K);
+      const lat = Math.max(-90, Math.min(90, latlng.lat));
+      const theta = Math.asin(M * Math.sin(lat * DEG));
+      return new L.Point(
+        (latlng.lng * DEG * Math.cos(theta)) / (M * eqEarthDY(theta)),
+        eqEarthY(theta)
+      );
     },
+    // No closed-form inverse; Newton-Raphson converges in a handful of steps.
     unproject(point) {
-      const sinLat = Math.max(-1, Math.min(1, point.y * K));
-      return new L.LatLng(Math.asin(sinLat) / DEG, point.x / K / DEG);
+      let theta = point.y;
+      for (let i = 0; i < 12; i++) {
+        const dt = (eqEarthY(theta) - point.y) / eqEarthDY(theta);
+        theta -= dt;
+        if (Math.abs(dt) < 1e-12) break;
+      }
+      const sinLat = Math.max(-1, Math.min(1, Math.sin(theta) / M));
+      return new L.LatLng(
+        Math.asin(sinLat) / DEG,
+        (M * point.x * eqEarthDY(theta)) / Math.cos(theta) / DEG
+      );
     },
-    bounds: L.bounds([-Math.PI * K, -1 / K], [Math.PI * K, 1 / K]),
+    bounds: L.bounds(
+      [-Math.PI / (M * A1), -eqEarthY(Math.asin(M))],
+      [Math.PI / (M * A1), eqEarthY(Math.asin(M))]
+    ),
   };
 
-  // Scale x and y by the same factor so equal-area actually holds on screen;
-  // the world then spans 1 unit wide (256px at zoom 0) and 2/(pi*K*K) as tall.
-  const UNIT = 1 / (2 * Math.PI * K);
+  // One shared scale factor for x and y, so equal-area holds on screen too;
+  // the world then spans exactly 1 unit wide (256px at zoom 0).
+  const UNIT = (M * A1) / (2 * Math.PI);
 
   const EqualAreaCRS = L.extend({}, L.CRS.Earth, {
-    code: "WISE:CylindricalEqualArea",
-    projection: EqualAreaProjection,
+    code: "WISE:EqualEarth",
+    projection: EqualEarthProjection,
     transformation: new L.Transformation(UNIT, 0.5, -UNIT, 0.5),
   });
 
