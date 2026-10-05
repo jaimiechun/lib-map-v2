@@ -51,6 +51,12 @@ TITLE_ALIASES = {
     "uk": "United Kingdom",
     "usa": "United States",
     "american": "United States",
+    # "Congo" is a substring of "Democratic Republic of the Congo", so these
+    # two have to be told apart by the longest match (see match_country).
+    "democratic republic of the congo": "DR Congo",
+    "drc": "DR Congo",
+    "congo brazzaville": "Congo",
+    "republic of the congo": "Congo",
     "ukrainian": "Ukraine",
     "uruguayan": "Uruguay",
     "venezuelan": "Venezuela",
@@ -63,18 +69,31 @@ def norm(s):
 
 
 def match_country(filename, names_by_iso3):
-    """Finds which country a Canva export belongs to, or None if ambiguous."""
+    """Finds which country a Canva export belongs to, or None if ambiguous.
+
+    Matches are scored by how much of the filename they explain, so a country
+    whose name nests inside a longer one loses to the longer match: "...in the
+    Democratic Republic of the Congo" belongs to DR Congo, not Congo.
+    """
     hay = " " + " ".join(norm(filename).split()) + " "
-    hits = set()
+    hits = {}  # iso3 -> length of the matched phrase
+    def note(iso3, phrase):
+        hits[iso3] = max(hits.get(iso3, 0), len(phrase))
+
     for iso3, name in names_by_iso3.items():
-        if f" {norm(name).strip()} " in hay:
-            hits.add(iso3)
+        phrase = norm(name).strip()
+        if f" {phrase} " in hay:
+            note(iso3, phrase)
     for adj, name in TITLE_ALIASES.items():
         if f" {adj} " in hay:
             for iso3, n in names_by_iso3.items():
                 if n == name:
-                    hits.add(iso3)
-    return hits.pop() if len(hits) == 1 else None
+                    note(iso3, adj)
+    if not hits:
+        return None
+    best = max(hits.values())
+    winners = [iso3 for iso3, size in hits.items() if size == best]
+    return winners[0] if len(winners) == 1 else None
 
 
 def downscale(dest):

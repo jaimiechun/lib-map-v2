@@ -107,7 +107,11 @@
 
   const map = L.map("map", {
     crs: EqualAreaCRS,
-    minZoom: 2,
+    zoomSnap: 0.5, // allows the half-step nudge on the initial fit
+    // Narrow screens need to go below the old floor of 2 to fit the data
+    // band at all — clamping there forced a zoomed-in view that pushed the
+    // Americas off the edge on phones.
+    minZoom: 1,
     maxZoom: 7,
     zoomControl: false,
     attributionControl: false,
@@ -406,19 +410,16 @@
   // Country poster (Canva design) shown at the foot of the card, clicking
   // through to that country's DOI. Only countries with both a design and a
   // DOI are in data/posters.js, so there's nothing to render otherwise.
-  // A poster entry carries `image` (a PNG exported from Canva, the normal
-  // case) or `embed` (Canva's own viewer, the fallback before a PNG exists),
-  // so changing how a poster is served is a data-only change.
+  // Needs both halves: `image` (a PNG exported from Canva) to show, and `doi`
+  // to link to. Countries missing either are simply left without a poster.
   function posterHtml(country) {
     const poster = window.WISE_POSTERS && window.WISE_POSTERS[country.iso3];
-    if (!poster || !poster.doi) return "";
+    if (!poster || !poster.doi || !poster.image) return "";
     const alt = `Water insecurity brief for ${country.name}`;
-    const media = poster.image
-      ? `<img class="poster-media" src="${poster.image}" alt="${alt}" loading="lazy">`
-      : `<iframe class="poster-media" src="${poster.embed}" title="${alt}" loading="lazy" allowfullscreen></iframe>`;
+    const media = `<img class="poster-media" src="${poster.image}" alt="${alt}" loading="lazy">`;
     return `
-      <a class="poster" href="${poster.image || poster.doi}" target="_blank" rel="noopener"
-         aria-label="Open the full ${country.name} water insecurity brief">
+      <a class="poster" href="${poster.doi}" target="_blank" rel="noopener"
+         aria-label="Open the ${country.name} water insecurity brief record (DOI)">
         ${media}
         <span class="poster-cover"></span>
         <span class="poster-open">Open <span aria-hidden="true">↗</span></span>
@@ -927,14 +928,52 @@
     // The container can have zero size at script time (embeds, slow layout),
     // which makes fitBounds zoom in to the max. Invalidate the cached size
     // and defer the initial fit until the container is actually laid out.
-    const bounds = L.latLngBounds(countries.map((c) => [c.lat, c.lng]));
+    // Framing the full extent of the data would mean fitting all 360° of
+    // longitude, because a handful of Pacific sites sit either side of the
+    // dateline (Tonga at -175°, Fiji at +175°) — which shrinks the dense
+    // Africa/Asia/Latin America band most people come here to look at. Fit
+    // the 2nd-98th percentile of data points instead: ~96% of entries in
+    // frame at a usable size, with the stragglers a zoom-out away. Derived
+    // from the data rather than hardcoded, so it re-frames itself as
+    // coverage grows.
+    const points = countries.flatMap((c) =>
+      c.entries.map((e) => [
+        typeof e.lat === "number" ? e.lat : c.lat,
+        typeof e.lng === "number" ? e.lng : c.lng,
+      ])
+    );
+    const spread = (values, p) => {
+      const sorted = [...values].sort((a, b) => a - b);
+      const at = (q) => sorted[Math.min(sorted.length - 1, Math.max(0,
+        Math.round((q / 100) * (sorted.length - 1))))];
+      return [at(p), at(100 - p)];
+    };
+    const [south, north] = spread(points.map((p) => p[0]), 2);
+    const [west, east] = spread(points.map((p) => p[1]), 2);
+    const bounds = L.latLngBounds([south, west], [north, east]);
     let fitted = false;
     const tryFit = () => {
       map.invalidateSize();
       const size = map.getSize();
       if (!fitted && size.x > 0 && size.y > 0) {
         fitted = true;
-        map.fitBounds(bounds, { padding: [40, 40] });
+        // Reserve the left gutter so the filter panel doesn't sit on top of
+        // the data, and lean in half a zoom step past the exact fit: the
+        // data band is much wider than it is tall, so a strict fit leaves
+        // big empty margins top and bottom. Clipping the quiet edges reads
+        // better than framing empty ocean.
+        const wide = size.x > 640;
+        const panel = document.getElementById("filter-panel");
+        const gutter = wide && panel ? panel.offsetWidth + 28 : 20;
+        map.fitBounds(bounds, {
+          paddingTopLeft: [gutter, 20],
+          paddingBottomRight: [20, 20],
+        });
+        // Only on wide screens: there the frame is taller than the data band
+        // needs, so half a step in trims empty ocean. A narrow screen is
+        // already height-constrained, and the same nudge would push the
+        // Americas off the edge.
+        if (wide) map.setZoom(map.getZoom() + 0.5, { animate: false });
       }
     };
     tryFit();

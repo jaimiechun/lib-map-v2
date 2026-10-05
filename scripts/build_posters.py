@@ -25,6 +25,7 @@ import csv
 import io
 import json
 import re
+import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -39,6 +40,11 @@ SHEET_CSV = (
 
 CANVA_COL = "Canva Link (Use Canada as Master Document)"
 DOI_COL = "DIO LINKS"
+
+# Columns are looked up by header text, not position, because the sheet gets
+# columns inserted into it (the DOI column has already moved from S to T).
+# The country is the first column whatever it happens to be titled — its
+# header has been "country" and "Man" at different points.
 
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
 
@@ -95,12 +101,17 @@ def resolve_country(raw, by_name):
 
 def main():
     by_name = load_centroids()
-    rows = list(csv.DictReader(io.StringIO(fetch(SHEET_CSV))))
+    reader = csv.DictReader(io.StringIO(fetch(SHEET_CSV)))
+    rows = list(reader)
+    country_col = reader.fieldnames[0]
+    for col in (CANVA_COL, DOI_COL):
+        if col not in reader.fieldnames:
+            sys.exit(f"ERROR: column {col!r} is gone from the sheet; headers are {reader.fieldnames}")
 
     posters = {}
     unmatched, no_doi = set(), []
     for row in rows:
-        name = (row.get("country") or "").strip()
+        name = (row.get(country_col) or "").strip()
         if not name:
             continue
         doi = (row.get(DOI_COL) or "").strip()
@@ -114,11 +125,12 @@ def main():
         if not doi:
             no_doi.append(country["name"])
             continue
-        embed = resolve_canva(canva)
-        if not embed:
-            print(f"WARNING: could not parse Canva link for {name}: {canva}")
-            continue
-        posters[country["cca3"]] = {"embed": embed, "doi": doi, "country": country["name"]}
+        # Deliberately NOT emitting the Canva URL. Those share links are edit
+        # links — signed out they open the full editor — so shipping one in
+        # data/posters.js would publish edit access to the design. The poster
+        # image comes from import_posters.py instead; a country with a DOI but
+        # no imported PNG simply shows no poster until one is exported.
+        posters[country["cca3"]] = {"doi": doi, "country": country["name"]}
 
     out = DATA / "posters.js"
     out.write_text("window.WISE_POSTERS = " + json.dumps(posters, ensure_ascii=False) + ";\n")
