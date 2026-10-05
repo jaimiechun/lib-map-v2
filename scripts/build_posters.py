@@ -33,9 +33,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 
-SHEET_CSV = (
+SHEET_XLSX = (
     "https://docs.google.com/spreadsheets/d/"
-    "1ZBlnDJlD6_urP0JhnOnw9knpoMkIrtsZE0i4sKMNcZI/export?format=csv&gid=0"
+    "1ZBlnDJlD6_urP0JhnOnw9knpoMkIrtsZE0i4sKMNcZI/export?format=xlsx"
 )
 
 CANVA_COL = "Canva Link (Use Canada as Master Document)"
@@ -88,6 +88,43 @@ def resolve_canva(url):
     return f"https://www.canva.com/design/{m.group(1)}/{m.group(2)}/view?embed"
 
 
+def read_sheet():
+    """Reads the sheet as xlsx, preferring each cell's hyperlink to its text.
+
+    A cell in Sheets can display one URL while linking to another — paste a
+    link over a cell that already had one and the visible text keeps the old
+    value. The CSV export only carries the text, which is how the UK's poster
+    came to point at Canada's DOI: the text was stale, the actual link right.
+    xlsx keeps both, so take the hyperlink where there is one.
+    """
+    try:
+        import openpyxl
+    except ImportError:
+        sys.exit("ERROR: needs openpyxl (pip3 install openpyxl) to read cell hyperlinks")
+
+    raw = urllib.request.urlopen(
+        urllib.request.Request(SHEET_XLSX, headers={"User-Agent": UA})
+    ).read()
+    ws = openpyxl.load_workbook(io.BytesIO(raw)).worksheets[0]
+
+    grid = list(ws.iter_rows())
+    fieldnames = [str(c.value).strip() if c.value is not None else "" for c in grid[0]]
+    rows, relinked = [], []
+    for cells in grid[1:]:
+        row = {}
+        for header, cell in zip(fieldnames, cells):
+            text = str(cell.value).strip() if cell.value is not None else ""
+            link = cell.hyperlink.target.strip() if cell.hyperlink and cell.hyperlink.target else ""
+            if link and text and link != text:
+                relinked.append((cells[0].value, header, text, link))
+            row[header] = link or text
+        rows.append(row)
+
+    for country, header, text, link in relinked:
+        print(f"NOTE: {str(country).strip()} {header!r} shows {text} but links to {link} — using the link")
+    return rows, fieldnames
+
+
 def load_centroids():
     centroids = json.loads((DATA / "country_centroids.json").read_text())
     return {c["name"].lower(): c for c in centroids}
@@ -101,12 +138,17 @@ def resolve_country(raw, by_name):
 
 def main():
     by_name = load_centroids()
-    reader = csv.DictReader(io.StringIO(fetch(SHEET_CSV)))
-    rows = list(reader)
-    country_col = reader.fieldnames[0]
+    rows, fieldnames = read_sheet()
+    country_col = fieldnames[0]
     for col in (CANVA_COL, DOI_COL):
-        if col not in reader.fieldnames:
-            sys.exit(f"ERROR: column {col!r} is gone from the sheet; headers are {reader.fieldnames}")
+        if col not in fieldnames:
+            sys.exit(f"ERROR: column {col!r} is gone from the sheet; headers are {fieldnames}")
+
+    previous = {}
+    out_path = DATA / "posters.js"
+    if out_path.exists():
+        raw = out_path.read_text()
+        previous = json.loads(raw[raw.index("{"): raw.rindex("}") + 1])
 
     posters = {}
     unmatched, no_doi = set(), []
@@ -131,12 +173,28 @@ def main():
         # image comes from import_posters.py instead; a country with a DOI but
         # no imported PNG simply shows no poster until one is exported.
         posters[country["cca3"]] = {"doi": doi, "country": country["name"]}
+        # Keep the imported PNG, which lives only in posters.js — rebuilding
+        # for a DOI change must not blank out every poster on the map.
+        existing = previous.get(country["cca3"], {}).get("image")
+        if existing and (ROOT / existing).exists():
+            posters[country["cca3"]]["image"] = existing
 
     out = DATA / "posters.js"
     out.write_text("window.WISE_POSTERS = " + json.dumps(posters, ensure_ascii=False) + ";\n")
     print(f"Wrote {len(posters)} posters to {out}")
     for iso3, p in sorted(posters.items()):
         print(f"  {iso3} {p['country']} -> {p['doi']}")
+    # Two countries pointing at one record means a paste went astray in the
+    # sheet; the poster still links somewhere, so nothing here would otherwise
+    # look broken until someone followed it to the wrong country's data.
+    by_doi = {}
+    for iso3, p in posters.items():
+        by_doi.setdefault(p["doi"].rstrip("/"), []).append(p["country"])
+    shared = {doi: cs for doi, cs in by_doi.items() if len(cs) > 1}
+    if shared:
+        print("\nWARNING: one DOI used by several countries — check the sheet:")
+        for doi, cs in shared.items():
+            print(f"  {doi} <- {', '.join(sorted(cs))}")
     if no_doi:
         print(f"\n{len(no_doi)} countries have a Canva poster but no DOI yet (skipped):")
         print("  " + ", ".join(sorted(no_doi)))
