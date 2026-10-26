@@ -195,7 +195,10 @@
   // on the exact same point, they're nudged into a small ring so they don't
   // fully overlap. Status still reads via opacity: solid = completed,
   // translucent = planned, core+halo = mixed.
-  function markersFor(country) {
+  // The placement half of markersFor(), kept separate so the globe can plot
+  // exactly the same points without duplicating the grouping rules.
+  // Returns [{ lat, lng, tool, entries }] with the ring offsets applied.
+  function markerGroups(country) {
     const visibleEntries = country.entries.filter(entryMatchesFilter);
 
     // Group by (real coordinate, or country centroid) + tool.
@@ -220,7 +223,7 @@
       byLocation.get(g.locKey).push(g);
     });
 
-    const layers = [];
+    const placed = [];
     byLocation.forEach((groupsAtLoc) => {
       const offsetDeg = groupsAtLoc[0].locKey === "centroid" ? 1.1 : 0.35;
       groupsAtLoc.forEach((g, i) => {
@@ -232,27 +235,33 @@
           lat += offsetDeg * Math.sin(angle);
           lng += (offsetDeg * Math.cos(angle)) / latCos;
         }
-
-        const color = toolColor(g.tool);
-        const radius = radiusFor(g.entries.length);
-        const status = aggregateStatus(g.entries);
-        const base = { className: "wise-marker", weight: 0, fillColor: color };
-        const filterInfo = { entries: g.entries, label: entryTitle(g.entries[0]) };
-        const addMarker = (r, opacity) => {
-          const marker = L.circleMarker([lat, lng], { ...base, radius: r, fillOpacity: opacity });
-          marker.on("click", () => showDetail(country, filterInfo));
-          layers.push(marker);
-        };
-
-        if (status === "completed") addMarker(radius, 1);
-        else if (status === "planned") addMarker(radius, 0.35);
-        else {
-          addMarker(radius * 1.6, 0.3);
-          addMarker(radius * 0.75, 1);
-        }
+        placed.push({ lat, lng, tool: g.tool, entries: g.entries });
       });
     });
+    return placed;
+  }
 
+  function markersFor(country) {
+    const layers = [];
+    markerGroups(country).forEach((g) => {
+      const color = toolColor(g.tool);
+      const radius = radiusFor(g.entries.length);
+      const status = aggregateStatus(g.entries);
+      const base = { className: "wise-marker", weight: 0, fillColor: color };
+      const filterInfo = { entries: g.entries, label: entryTitle(g.entries[0]) };
+      const addMarker = (r, opacity) => {
+        const marker = L.circleMarker([g.lat, g.lng], { ...base, radius: r, fillOpacity: opacity });
+        marker.on("click", () => showDetail(country, filterInfo));
+        layers.push(marker);
+      };
+
+      if (status === "completed") addMarker(radius, 1);
+      else if (status === "planned") addMarker(radius, 0.35);
+      else {
+        addMarker(radius * 1.6, 0.3);
+        addMarker(radius * 0.75, 1);
+      }
+    });
     return layers;
   }
 
@@ -524,7 +533,7 @@
 
   function focusCountry(country, filter) {
     map.setView([country.lat, country.lng], 5);
-    if (globeActive && globe) globe.pointOfView({ lat: country.lat, lng: country.lng, altitude: 1.2 }, 800);
+    if (globeActive && globe) globeGoTo(country.lat, country.lng);
     showDetail(country, filter);
     searchResults.classList.add("hidden");
     searchInput.value = "";
@@ -541,7 +550,7 @@
     if (globeActive && globe) {
       const lat = points.reduce((s, p) => s + p[0], 0) / points.length;
       const lng = points.reduce((s, p) => s + p[1], 0) / points.length;
-      globe.pointOfView({ lat, lng, altitude: 1.4 }, 800);
+      globeGoTo(lat, lng);
     }
     showDetail(null, filter);
     searchResults.classList.add("hidden");
@@ -788,91 +797,322 @@
 
   map.on("zoomend", () => renderMarkers());
 
-  // --- Globe view (lazy-loaded WebGL globe; same data and filters) ---
+  // --- Globe view (vector orthographic globe; same data and filters) ---
+  //
+  // Drawn with d3-geo onto a canvas rather than as WebGL geometry. The old
+  // globe.gl version extruded each country to altitude 0.008 and floated the
+  // dots at 0.009 — a gap of about 7km at globe scale, too thin for the GPU
+  // to resolve, so surfaces shimmered and bled into each other while
+  // rotating, and raised polygon *sides* made borders read as walls. Here
+  // land lies flat on the sphere exactly as it does on the 2D map, using the
+  // same palette, the same marker grouping and the same status encoding, so
+  // the two views finally agree. It also drops ~600KB of three.js for ~30KB
+  // of projection maths.
   const globeBtn = document.getElementById("globe-btn");
   const globeEl = document.getElementById("globe");
   const mapEl = document.getElementById("map");
-  let globe = null;
+  let globe = null; // { canvas, ctx, projection, path, rotation, scale }
   let globeActive = false;
   let globeLoading = false;
+  let globeDots = []; // screen-space hit targets, rebuilt every render
+  // Globe equivalent of the 2D map's LABEL_MIN_ZOOM: names appear once the
+  // globe has been zoomed past roughly 1.5x its default size.
+  const GLOBE_LABEL_MIN_SCALE = 1.5;
 
-  // Radius in globe "points" units (globe.gl scale, roughly comparable to
-  // the 2D marker radius formula).
-  function globeDotRadius(country) {
-    return Math.min(0.35 + Math.sqrt(country.entries.length) * 0.22, 1.6);
+  // Just the two d3 modules the globe needs (~53KB) rather than the whole
+  // d3 bundle (~280KB); d3-geo depends on d3-array, so order matters.
+  const D3_SCRIPTS = [
+    "https://cdn.jsdelivr.net/npm/d3-array@3/dist/d3-array.min.js",
+    "https://cdn.jsdelivr.net/npm/d3-geo@3/dist/d3-geo.min.js",
+  ];
+
+  function loadScripts(urls, onDone, onError) {
+    const next = (i) => {
+      if (i >= urls.length) return onDone();
+      const s = document.createElement("script");
+      s.src = urls[i];
+      s.onload = () => next(i + 1);
+      s.onerror = onError;
+      document.body.appendChild(s);
+    };
+    next(0);
   }
 
-  function globeDotColor(country) {
-    // Solid teal for completed, translucent teal for planned, and a
-    // slightly-less-translucent teal for mixed (no room for the 2D
-    // halo-plus-core layering with a single WebGL point layer).
-    if (country.status === "completed") return TEAL;
-    if (country.status === "planned") return "rgba(14, 124, 123, 0.4)";
-    return "rgba(14, 124, 123, 0.75)";
+  // d3-geo reads polygons on the sphere, where ring direction decides which
+  // side is "inside": a clockwise exterior ring means everything *except*
+  // that shape, so a single mis-wound country (Antarctica, typically) paints
+  // over the whole globe and the ocean disappears. Leaflet renders the same
+  // data planar and doesn't care, so this is fixed up for the globe only.
+  let globeFeatures = null;
+  function rewindForSphere(features) {
+    return features.map((f) => {
+      const geom = f.geometry;
+      const polys = geom.type === "MultiPolygon" ? geom.coordinates : [geom.coordinates];
+      const fixed = polys.map((rings) =>
+        rings.map((ring, i) => {
+          const area = d3.geoArea({ type: "Polygon", coordinates: [ring] });
+          // Exterior rings should cover less than a hemisphere; holes more.
+          const tooBig = i === 0 ? area > 2 * Math.PI : area < 2 * Math.PI;
+          return tooBig ? ring.slice().reverse() : ring;
+        })
+      );
+      return {
+        ...f,
+        geometry: {
+          type: geom.type,
+          coordinates: geom.type === "MultiPolygon" ? fixed : fixed[0],
+        },
+      };
+    });
   }
 
-  function updateGlobe() {
+  function globeSize() {
+    return { w: globeEl.clientWidth || 800, h: globeEl.clientHeight || 600 };
+  }
+
+  function renderGlobe() {
     if (!globe) return;
-    // Nationally Rep mode shows only the shaded territories, no points.
-    const visible = activeDataType === "national" ? [] : countries.filter(passesFilter);
+    const { ctx, projection, path } = globe;
+    const { w, h } = globeSize();
+    const dpr = window.devicePixelRatio || 1;
+
+    if (globe.canvas.width !== Math.round(w * dpr) || globe.canvas.height !== Math.round(h * dpr)) {
+      globe.canvas.width = Math.round(w * dpr);
+      globe.canvas.height = Math.round(h * dpr);
+      globe.canvas.style.width = w + "px";
+      globe.canvas.style.height = h + "px";
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    projection
+      .rotate(globe.rotation)
+      .translate([w / 2, h / 2])
+      .scale(globe.scale * Math.min(w, h) / 2.4);
+
+    // Ocean sphere — same sea colour as the 2D map.
+    ctx.beginPath();
+    path({ type: "Sphere" });
+    ctx.fillStyle = "#20B2AA";
+    ctx.fill();
+
     const rep = new Set(
       countries
         .filter((c) => c.entries.filter(entryMatchesShading).some((e) => e.nationallyRepresentative))
         .map((c) => c.iso3)
     );
-    globe
-      .polygonCapColor((f) => (rep.has(f.id) ? "rgba(130, 174, 243, 0.9)" : "#f7f7f4"))
-      .pointsData(visible)
-      .pointColor(globeDotColor)
-      // Just above the land polygon cap altitude (0.008) so dots sit on
-      // top of the surface instead of being hidden beneath it, but still
-      // low enough to read as a flat disc rather than an extruded pill.
-      .pointAltitude(0.009)
-      .pointRadius(globeDotRadius)
-      .pointResolution(48);
+
+    // Land, then the blue wash over nationally representative territories.
+    ctx.lineWidth = 0.6;
+    ctx.strokeStyle = "#d6d0c5";
+    globeFeatures.forEach((f) => {
+      ctx.beginPath();
+      path(f);
+      ctx.fillStyle = "#fbfaf6";
+      ctx.fill();
+      if (rep.has(f.id)) {
+        ctx.fillStyle = "rgba(130, 174, 243, 0.35)";
+        ctx.fill();
+      }
+      ctx.stroke();
+    });
+
+    // Dots: same grouping, sizing and status encoding as the 2D markers.
+    // Nationally Rep mode shows shaded territories only, matching the map.
+    globeDots = [];
+    if (activeDataType !== "national") {
+      const centre = [-globe.rotation[0], -globe.rotation[1]];
+      // Match the 2D marker scale rather than the globe's radius: the 2D map
+      // shrinks dots when zoomed out (zoomScale) and the globe shows far
+      // fewer degrees per pixel than the flat map, so sizing straight off the
+      // radius made the dots roughly half again too big and badly crowded.
+      // Capped so zooming right in doesn't inflate them past readability.
+      const radius = (globe.scale * Math.min(w, h)) / 2.4;
+      const dotScale = Math.min(radius / 580, 1.1);
+      countries.filter(passesFilter).forEach((country) => {
+        markerGroups(country).forEach((g) => {
+          // Skip anything on the far side of the globe.
+          if (d3.geoDistance([g.lng, g.lat], centre) > Math.PI / 2) return;
+          const xy = projection([g.lng, g.lat]);
+          if (!xy) return;
+          const r = Math.min(6 + Math.sqrt(g.entries.length) * 3, 20) * dotScale;
+          const color = toolColor(g.tool);
+          const status = aggregateStatus(g.entries);
+          const disc = (radius, alpha) => {
+            ctx.beginPath();
+            ctx.arc(xy[0], xy[1], radius, 0, 2 * Math.PI);
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          };
+          if (status === "completed") disc(r, 1);
+          else if (status === "planned") disc(r, 0.35);
+          else {
+            disc(r * 1.6, 0.3);
+            disc(r * 0.75, 1);
+          }
+          globeDots.push({
+            x: xy[0], y: xy[1], r: Math.max(r, 6), country,
+            filter: { entries: g.entries, label: entryTitle(g.entries[0]) },
+          });
+        });
+      });
+    }
+
+    drawGlobeLabels();
+  }
+
+  // Country names, mirroring the 2D map's behaviour of only labelling once
+  // you've zoomed in. A country is labelled when its projected area is big
+  // enough to hold the text, so labels appear progressively as you zoom
+  // rather than all at once, and tiny or edge-on countries stay clear.
+  function drawGlobeLabels() {
+    const { ctx, projection, path } = globe;
+    if (globe.scale < GLOBE_LABEL_MIN_SCALE) return;
+
+    ctx.font = '500 11px Geist, -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const centre = [-globe.rotation[0], -globe.rotation[1]];
+    const placed = [];
+
+    globeFeatures.forEach((f) => {
+      const name = f.properties && f.properties.name;
+      if (!name) return;
+      const centroid = d3.geoCentroid(f);
+      // Keep well inside the limb: text near the edge is badly distorted.
+      if (d3.geoDistance(centroid, centre) > Math.PI / 2.4) return;
+      if (path.area(f) < 900) return; // too small at this zoom to label
+
+      const xy = projection(centroid);
+      if (!xy) return;
+      const half = ctx.measureText(name).width / 2;
+      // Skip anything that would sit on top of a label already drawn.
+      const clash = placed.some(
+        (p) => Math.abs(p.x - xy[0]) < p.half + half + 6 && Math.abs(p.y - xy[1]) < 14
+      );
+      if (clash) return;
+      placed.push({ x: xy[0], y: xy[1], half });
+
+      ctx.fillStyle = "#4d4a44";
+      ctx.fillText(name, xy[0], xy[1]);
+    });
+  }
+
+  // Kept for the call sites that used to drive globe.gl.
+  function updateGlobe() {
+    renderGlobe();
+  }
+
+  // Spins the globe to bring a coordinate to the centre, matching the way
+  // the 2D view recentres on search hits.
+  function globeGoTo(lat, lng) {
+    if (!globe) return;
+    const from = globe.rotation.slice();
+    const to = [-lng, -lat, 0];
+    const start = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / 700);
+      const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      globe.rotation = from.map((v, i) => v + (to[i] - v) * ease);
+      renderGlobe();
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   }
 
   function initGlobe() {
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/globe.gl@2.34.5/dist/globe.gl.min.js";
-    script.onload = () => {
-      globe = Globe({ rendererConfig: { antialias: true, alpha: true } })(globeEl)
-        .backgroundColor("rgba(0,0,0,0)")
-        .showAtmosphere(true)
-        .atmosphereColor("#b9d6e8")
-        .polygonsData(window.WISE_WORLD.features)
-        .polygonAltitude(0.008)
-        // Finer tessellation so large polygons follow the sphere's curvature
-        // instead of cutting through it (which shimmered/glitched).
-        .polygonCapCurvatureResolution(1)
-        .polygonsTransitionDuration(0)
-        .polygonSideColor(() => "rgba(20, 30, 40, 0.05)")
-        .polygonStrokeColor(() => "#c6cbd4")
-        .onPointClick((c) => showDetail(c))
-        .onPolygonClick((f) => {
-          const c = countries.find((x) => x.iso3 === f.id);
-          if (c) showDetail(c);
+    loadScripts(
+      D3_SCRIPTS,
+      () => {
+        const canvas = document.createElement("canvas");
+        canvas.style.display = "block";
+        canvas.style.cursor = "grab";
+        globeEl.appendChild(canvas);
+        const ctx = canvas.getContext("2d");
+        globeFeatures = rewindForSphere(window.WISE_WORLD.features);
+        const projection = d3.geoOrthographic().clipAngle(90).precision(0.3);
+        globe = {
+          canvas,
+          ctx,
+          projection,
+          path: d3.geoPath(projection, ctx),
+          rotation: [-10, -15, 0],
+          scale: 1,
+        };
+
+        // Drag to spin; the divisor keeps a drag across the canvas feeling
+        // like turning a globe rather than flinging it.
+        let dragging = null;
+        canvas.addEventListener("pointerdown", (e) => {
+          dragging = { x: e.clientX, y: e.clientY, rotation: globe.rotation.slice(), moved: 0 };
+          canvas.setPointerCapture(e.pointerId);
+          canvas.style.cursor = "grabbing";
         });
-      globe.globeMaterial().color.set("#fdffe9");
-      // Render at the display's native pixel density so the globe isn't
-      // pixelated on retina screens (must be set before the first frame).
-      globe.renderer().setPixelRatio(window.devicePixelRatio || 1);
-      globe.pointOfView({ lat: 15, lng: 10, altitude: 2 });
-      new ResizeObserver(() => {
-        globe.width(globeEl.clientWidth).height(globeEl.clientHeight);
-      }).observe(globeEl);
-      globeLoading = false;
-      updateGlobe();
-    };
-    script.onerror = () => {
-      globeLoading = false;
-      globeBtn.textContent = "🌐";
-      globeBtn.title = "Globe view";
-      globeEl.classList.remove("active");
-      mapEl.style.display = "block";
-      globeActive = false;
-    };
-    document.body.appendChild(script);
+        canvas.addEventListener("pointermove", (e) => {
+          if (!dragging) return;
+          const dx = e.clientX - dragging.x;
+          const dy = e.clientY - dragging.y;
+          dragging.moved = Math.max(dragging.moved, Math.abs(dx) + Math.abs(dy));
+          const k = 0.25 / globe.scale;
+          globe.rotation = [
+            dragging.rotation[0] + dx * k,
+            Math.max(-90, Math.min(90, dragging.rotation[1] - dy * k)),
+            0,
+          ];
+          renderGlobe();
+        });
+        const endDrag = (e) => {
+          if (!dragging) return;
+          const wasClick = dragging.moved < 4;
+          dragging = null;
+          canvas.style.cursor = "grab";
+          if (wasClick) globeClick(e);
+        };
+        canvas.addEventListener("pointerup", endDrag);
+        canvas.addEventListener("pointercancel", () => { dragging = null; });
+
+        canvas.addEventListener("wheel", (e) => {
+          e.preventDefault();
+          globe.scale = Math.max(0.8, Math.min(6, globe.scale * (e.deltaY < 0 ? 1.1 : 0.9)));
+          renderGlobe();
+        }, { passive: false });
+
+        new ResizeObserver(renderGlobe).observe(globeEl);
+        globeLoading = false;
+        renderGlobe();
+      },
+      () => {
+        globeLoading = false;
+        globeBtn.textContent = "🌐";
+        globeBtn.title = "Globe view";
+        globeEl.classList.remove("active");
+        mapEl.style.display = "block";
+        globeActive = false;
+      }
+    );
+  }
+
+  // Nearest dot wins, then fall back to whichever country was clicked.
+  function globeClick(e) {
+    const rect = globe.canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    let best = null;
+    globeDots.forEach((d) => {
+      const dist = Math.hypot(d.x - x, d.y - y);
+      if (dist <= d.r && (!best || dist < best.dist)) best = { dist, dot: d };
+    });
+    if (best) {
+      showDetail(best.dot.country, best.dot.filter);
+      return;
+    }
+    const lonlat = globe.projection.invert([x, y]);
+    if (!lonlat) return;
+    const hit = globeFeatures.find((f) => d3.geoContains(f, lonlat));
+    const country = hit && countries.find((c) => c.iso3 === hit.id);
+    if (country) showDetail(country);
   }
 
   globeBtn.addEventListener("click", () => {

@@ -658,8 +658,9 @@ html, body {
   position: absolute;
   inset: 0;
   display: none;
-  /* Same sea tint as the 2D map */
-  background: rgba(247, 255, 178, 0.45);
+  /* The canvas paints the globe and its own sea colour; this is the space
+     around the sphere, which matches the page rather than the ocean. */
+  background: var(--bg);
 }
 
 #globe.active { display: block; }
