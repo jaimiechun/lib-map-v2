@@ -4,6 +4,12 @@
   --surface: #fdfcfa;
   --surface-hover: #f4f1eb;
   --pill: #efece6;
+  /* The blue a nationally representative country shows on the map: REP_FILL
+     (#82AEF3 in app.js) at 35% over the land colour. Reused by the
+     "Nationally Rep" control so the colour itself says what it selects —
+     keep in step with REP_FILL and the land fill if either changes. */
+  --rep-shade: #d1dff5;
+  --rep-edge: #82aef3;
   --border: #e6e1d8;
   --border-strong: #d6d0c5;
   --ink: #22211e;
@@ -1073,3 +1079,33 @@ body.globe-mode #panel-toggle {
   color: rgba(255, 255, 255, 0.8);
 }
 body.globe-mode #panel-toggle:hover { color: #fff; }
+
+/* ---------- "Nationally Rep" carries the map's own shading colour ----------
+   Shaded territories and this control are the same idea, so they use the
+   same blue: hovering previews it, selecting fills the pill with the exact
+   tint the countries take. */
+#datatype-toggle .status-btn[data-datatype="national"]:hover {
+  background: rgba(130, 174, 243, 0.2);
+  border-color: rgba(130, 174, 243, 0.55);
+  color: var(--ink);
+}
+
+#datatype-toggle .status-btn[data-datatype="national"].active {
+  background: var(--rep-shade);
+  border-color: var(--rep-edge);
+  color: var(--ink);
+}
+
+/* Same colour against the inverted globe-view panel, where the default
+   active state is a plain white pill. */
+body.globe-mode #datatype-toggle .status-btn[data-datatype="national"]:hover {
+  background: rgba(130, 174, 243, 0.4);
+  border-color: rgba(209, 223, 245, 0.7);
+  color: #fff;
+}
+
+body.globe-mode #datatype-toggle .status-btn[data-datatype="national"].active {
+  background: var(--rep-shade);
+  border-color: var(--rep-shade);
+  color: #22211e;
+}
