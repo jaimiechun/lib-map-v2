@@ -545,11 +545,17 @@ html, body {
 
 .tools-bulk button:hover { color: var(--ink); }
 
+/* Small caps with letter-spacing: at 12px regular these labels blended into
+   the controls under them, so the group headings now read as headings
+   without going back to a heavier weight that would compete with
+   "Filter by". */
 .filter-subtitle {
-  font-size: 12px;
+  font-size: 10.5px;
   color: var(--muted);
-  font-weight: 400;
-  margin: 6px 0 -2px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 10px 0 0;
 }
 
 /* Segmented pills (Week / Month style) */
