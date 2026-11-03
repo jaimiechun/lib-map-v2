@@ -4130,6 +4130,45 @@
         "contact": null
       },
       {
+        "level": "site",
+        "location": "Gaza Strip",
+        "lat": 31.4189,
+        "lng": 34.3517,
+        "tool": "HWISE-4",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "Sept 2024",
+        "link": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12621400/",
+        "contact": null
+      },
+      {
+        "level": "site",
+        "location": "Gaza Strip",
+        "lat": 31.4189,
+        "lng": 34.3517,
+        "tool": "HWISE-4",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "September 1-30, 2024",
+        "link": "https://link.springer.com/article/10.1186/s12939-024-02365-3",
+        "contact": "feten.fekih@gmail.com"
+      },
+      {
+        "level": "site",
+        "location": "Gaza Strip",
+        "lat": 31.4189,
+        "lng": 34.3517,
+        "tool": "HWISE-8",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "Aug-Dec 2024",
+        "link": "https://journals.sagepub.com/doi/10.1177/17455057251414296",
+        "contact": "j.w.vintges@uva.nl"
+      },
+      {
         "level": "national",
         "location": null,
         "lat": null,
@@ -4632,6 +4671,71 @@
         "dates": "July-August 2017",
         "link": "https://gh.bmj.com/content/4/5/e001750",
         "contact": null
+      },
+      {
+        "level": "site",
+        "location": "Khatlon",
+        "lat": 37.9114,
+        "lng": 69.097,
+        "tool": "HWISE-12",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": "https://doi.org/10.7910/DVN/YPTNYW",
+        "contact": "mohru.mardonova@gmail.com"
+      },
+      {
+        "level": "site",
+        "location": "Khatlon Province",
+        "lat": 37.9114,
+        "lng": 69.097,
+        "tool": "IWISE-4",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "Start Date: 2025-01; End Date: 2025-03",
+        "link": "https://doi.org/10.7910/DVN/YPTNYW",
+        "contact": "i.lambrecht@uliege.be"
+      },
+      {
+        "level": "site",
+        "location": "Sughd Province",
+        "lat": 39.5155,
+        "lng": 69.097,
+        "tool": "IWISE-4",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "Start Date: 2025-01; End Date: 2025-03",
+        "link": "https://doi.org/10.7910/DVN/YPTNYW",
+        "contact": "i.lambrecht@uliege.be"
+      },
+      {
+        "level": "site",
+        "location": "Districts of Republican Subordination",
+        "lat": 38.8654,
+        "lng": 70.1807,
+        "tool": "IWISE-4",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "Start Date: 2025-01; End Date: 2025-03",
+        "link": "https://doi.org/10.7910/DVN/YPTNYW",
+        "contact": "i.lambrecht@uliege.be"
+      },
+      {
+        "level": "site",
+        "location": "Khatlon Province",
+        "lat": 37.8333,
+        "lng": 69.0,
+        "tool": "HWISE-12",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "10-2024",
+        "link": "https://hdl.handle.net/10568/182632",
+        "contact": "i.lambrecht@uliege.be"
       }
     ]
   },
@@ -5203,6 +5307,19 @@
         "dates": "2024",
         "link": "https://www.wise-dx.org",
         "contact": "vanessa.bly@northwestern.edu"
+      },
+      {
+        "level": "site",
+        "location": "Puerto Rico",
+        "lat": 18.2208,
+        "lng": -66.5901,
+        "tool": "HWISE-12",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "May 2022-Feb 2023",
+        "link": "https://www.frontiersin.org/journals/water/articles/10.3389/frwa.2024.1357921/full",
+        "contact": "tntelson@iastate.edu"
       },
       {
         "level": "national",

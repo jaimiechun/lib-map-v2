@@ -8,6 +8,7 @@
   // before any data using it has been added.
   const KNOWN_TOOLS = [
     "HWISE-12",
+    "HWISE-8",
     "HWISE-4",
     "IWISE-12",
     "IWISE-4",
@@ -18,6 +19,9 @@
   // Map dots, tool badges, and filter swatches are all colored per tool.
   const TOOL_COLORS = {
     "HWISE-12": "#00AEE5",
+    // Placeholder: sits between the two HWISE blues/greens so it reads as
+    // part of that family. Swap for the team's chosen hex when they pick one.
+    "HWISE-8": "#6FD44E",
     "HWISE-4": "#00DF30",
     "IWISE-12": "#00DDDC",
     "IWISE-4": "#0078C4",
@@ -468,11 +472,23 @@
     detailCard.classList.remove("hidden");
   }
 
+  // "With completed data" means a country has at least one finished study,
+  // not that every study there is finished. The earlier version counted only
+  // countries whose entries were *all* Completed, which dropped 37 countries
+  // — including the most-researched ones, since one planned study alongside
+  // ten finished ones reclassified the country as mixed and excluded it.
+  // These two buckets are exhaustive (a country has completed work or it
+  // doesn't), so the figures reconcile against the country total.
   function updateStats() {
     const total = countries.length;
-    const completed = countries.filter((c) => c.status === "completed").length;
-    const planned = countries.filter((c) => c.status === "planned").length;
-    statsEl.innerHTML = `<span><b>${total}</b> countries</span><span><b>${completed}</b> completed</span><span><b>${planned}</b> planned only</span>`;
+    const withData = countries.filter((c) =>
+      c.entries.some((e) => e.status === "Completed")
+    ).length;
+    const plannedOnly = total - withData;
+    statsEl.innerHTML =
+      `<span><b>${total}</b> countries</span>` +
+      `<span><b>${withData}</b> with completed data</span>` +
+      `<span><b>${plannedOnly}</b> planned only</span>`;
   }
 
   // One shared tool checklist (used regardless of which status is active)
