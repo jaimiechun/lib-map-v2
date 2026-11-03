@@ -1136,6 +1136,9 @@
     if (globeActive) {
       globeActive = false;
       globeEl.classList.remove("active");
+      // Lets the filter panel invert against the globe's pale surround
+      // (see "Globe view: inverted filter panel" in style.css).
+      document.body.classList.remove("globe-mode");
       mapEl.style.display = "block";
       globeBtn.textContent = "🌐";
       globeBtn.title = "Globe view";
@@ -1145,6 +1148,7 @@
     globeActive = true;
     mapEl.style.display = "none";
     globeEl.classList.add("active");
+    document.body.classList.add("globe-mode");
     globeBtn.textContent = "🗺️";
     globeBtn.title = "2D view";
     if (!globe && !globeLoading) {

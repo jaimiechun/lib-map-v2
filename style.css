@@ -999,3 +999,77 @@ iframe.poster-media {
   .status-btn { padding: 6px 4px; font-size: 11px; }
   #detail-card { width: calc(100% - 28px); }
 }
+
+/* ---------- Globe view: inverted filter panel ----------
+   The globe sits on the page's pale ground rather than the 2D map's teal
+   sea, so the near-white panel had nothing to separate it from the
+   backdrop. In globe mode it flips to the warm grey used for body text,
+   with the type knocked out in white — same layout and spacing, inverted
+   values. Tints are expressed as white at a given alpha so every piece
+   stays in step with the panel colour. */
+body.globe-mode #filter-panel {
+  background: rgba(118, 114, 106, 0.97);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 1px 2px rgba(34, 33, 30, 0.12), 0 8px 24px rgba(34, 33, 30, 0.18);
+}
+
+body.globe-mode .filter-title { color: #fff; }
+body.globe-mode .filter-subtitle { color: rgba(255, 255, 255, 0.6); }
+
+/* Search */
+body.globe-mode #search-input {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+body.globe-mode #search-input::placeholder { color: rgba(255, 255, 255, 0.55); }
+body.globe-mode #search-input:focus {
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+}
+body.globe-mode #search-btn { color: rgba(255, 255, 255, 0.75); }
+body.globe-mode #search-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* Segmented controls */
+body.globe-mode .status-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.78);
+}
+body.globe-mode .status-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+body.globe-mode .status-btn.active {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.92);
+  color: #22211e;
+}
+
+/* Scale checklist */
+body.globe-mode .tool-option { color: #fff; }
+body.globe-mode .tool-option:hover { background: rgba(255, 255, 255, 0.1); }
+body.globe-mode .tool-option input { accent-color: #fff; }
+body.globe-mode .tools-bulk { color: rgba(255, 255, 255, 0.5); }
+body.globe-mode .tools-bulk button { color: rgba(255, 255, 255, 0.75); }
+body.globe-mode .tools-bulk button:hover { color: #fff; }
+
+/* Footer link and the collapse handle */
+body.globe-mode #tools-learn-more {
+  color: rgba(255, 255, 255, 0.8);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  text-decoration-color: rgba(255, 255, 255, 0.45);
+}
+body.globe-mode #tools-learn-more:hover {
+  color: #fff;
+  text-decoration-color: #fff;
+}
+body.globe-mode #panel-toggle {
+  background: rgba(118, 114, 106, 0.97);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.8);
+}
+body.globe-mode #panel-toggle:hover { color: #fff; }
