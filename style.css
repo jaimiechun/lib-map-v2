@@ -105,6 +105,10 @@ html, body {
   white-space: nowrap;
 }
 
+/* Reads as a sentence opener, so it sits closer to the first figure than
+   the figures do to each other. */
+.stats-lead { margin-right: -6px; }
+
 #stats b {
   color: var(--ink);
   font-weight: 600;

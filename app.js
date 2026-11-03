@@ -486,6 +486,7 @@
     ).length;
     const plannedOnly = total - withData;
     statsEl.innerHTML =
+      `<span class="stats-lead">So far we have data in</span>` +
       `<span><b>${total}</b> countries</span>` +
       `<span><b>${withData}</b> with completed data</span>` +
       `<span><b>${plannedOnly}</b> planned</span>`;
