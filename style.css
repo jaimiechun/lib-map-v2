@@ -115,10 +115,15 @@ html, body {
   background: var(--ink);
   color: #fff;
   font-family: inherit;
-  font-size: 13px;
+  /* Label is roughly twice as long as the old "Submit data", so the padding
+     is tightened and the type eased down half a pixel — enough to hold the
+     button near its previous footprint without shrinking the text to the
+     point where it stops reading as the primary action. */
+  font-size: 12.5px;
   font-weight: 500;
   border-radius: var(--radius-control);
-  padding: 8px 14px;
+  padding: 8px 12px;
+  white-space: nowrap;
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -945,10 +950,21 @@ iframe.poster-media {
   outline-offset: 2px;
 }
 
+/* The longer label plus the three stat figures no longer fit on one line on
+   a phone, so let them stack rather than run off the right edge. */
+@media (max-width: 620px) {
+  #header-right {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px 12px;
+  }
+}
+
 @media (max-width: 480px) {
   #header { padding: 8px 12px; }
   #subtitle { display: none; }
   #stats { font-size: 11px; gap: 8px; }
+  #submit-open { font-size: 12px; padding: 7px 11px; }
   #filter-panel { max-width: 220px; padding: 10px; }
   .status-btn { padding: 6px 4px; font-size: 11px; }
   #detail-card { width: calc(100% - 28px); }
