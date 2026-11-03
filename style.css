@@ -519,6 +519,11 @@ html, body {
   border-top: 1px solid var(--border);
 }
 
+/* The scale heading carries .filter-subtitle like Sample Type and Status,
+   so all three group labels read at the same weight; its own top margin
+   would fight the flex row's baseline alignment. */
+#tools-header .filter-subtitle { margin: 0; }
+
 .tools-bulk {
   display: flex;
   align-items: center;
