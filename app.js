@@ -43,10 +43,13 @@
     return "mixed";
   }
 
-  // Visitor data submissions. If SUBMIT_ENDPOINT is set (e.g. a Google Apps
-  // Script web app or Formspree URL), the form POSTs JSON there. If it is
-  // empty, the form falls back to opening a pre-filled email to SUBMIT_EMAIL.
-  const SUBMIT_ENDPOINT = "https://formspree.io/f/xeajjpzr";
+  // Visitor data submissions. The form POSTs JSON to SUBMIT_ENDPOINT — a
+  // Google Apps Script web app that appends each submission as a row in the
+  // team's review spreadsheet and emails SUBMIT_EMAIL (see
+  // scripts/submissions_apps_script.gs). If SUBMIT_ENDPOINT is empty the
+  // form falls back to opening a pre-filled email instead.
+  const SUBMIT_ENDPOINT =
+    "https://script.google.com/macros/s/AKfycbyT1-gOam96045FOptlfhRcaVyBXdIsxAIA9xxmA17hQJ1kYzIsZD5IRAuSO03ZeNwn-Q/exec";
   const SUBMIT_EMAIL = "sera.young@northwestern.edu";
 
   // Equal Earth projection (Šavrič, Patterson & Jenny, 2018) instead of
@@ -803,16 +806,18 @@
     if (SUBMIT_ENDPOINT) {
       submitSend.disabled = true;
       submitStatus.textContent = "Sending…";
+      // Sent as text/plain even though the body is JSON: an application/json
+      // POST is a "preflighted" cross-origin request, and Apps Script web
+      // apps don't answer the OPTIONS preflight, so the submission would
+      // fail before it ever ran. text/plain keeps it a simple request; the
+      // script parses the body as JSON either way.
       fetch(SUBMIT_ENDPOINT, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({
           ...data,
-          _subject: `WISE map data submission: ${data.country}`,
-          _replyto: extractEmail(data.submitter) || undefined,
+          submittedFrom: location.href,
+          replyTo: extractEmail(data.submitter) || "",
         }),
       })
         .then((res) => {

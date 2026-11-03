@@ -89,22 +89,33 @@ The "Submit data" button on the map opens a form for visitors to propose new
 entries. Nothing a visitor submits ever appears on the map automatically —
 submissions go to the research team for review.
 
-How submissions reach the team, in order of setup effort:
+Submissions POST to a Google Apps Script web app bound to the team's review
+spreadsheet: each one becomes a row, and the script emails `SUBMIT_EMAIL`.
+The script lives at `scripts/submissions_apps_script.gs`, and its deployment
+URL is `SUBMIT_ENDPOINT` at the top of `app.js`. (With `SUBMIT_ENDPOINT`
+empty, the form falls back to opening a pre-filled email instead.)
 
-1. **Default (no setup): email.** With `SUBMIT_ENDPOINT` empty in `app.js`,
-   the form opens the visitor's email app pre-filled with a structured
-   submission addressed to `SUBMIT_EMAIL`.
-2. **Endpoint (recommended for a live site):** create a Google Apps Script
-   web app bound to a Google Sheet (or a Formspree form), paste its URL into
-   `SUBMIT_ENDPOINT` at the top of `app.js`, and submissions POST there as
-   JSON — landing in a spreadsheet the team can triage.
+Two things to know if you touch either end:
+
+- **The POST is sent as `text/plain`, not `application/json`.** A JSON
+  content type makes it a preflighted cross-origin request, and Apps Script
+  web apps don't answer the `OPTIONS` preflight, so submissions would fail
+  silently. The script parses the body as JSON regardless.
+- **Editing the script isn't enough to change the live behaviour.** In the
+  Apps Script editor, re-deploy with Manage deployments > edit > Version:
+  New version. The `/exec` URL keeps serving the last deployed version.
+
+To add a form field: add the input to `index.html`, then add its `name` to
+`COLUMNS` in the Apps Script so it gets its own spreadsheet column.
 
 ### Review workflow
 
-1. A submission arrives (email or spreadsheet row).
+1. A submission arrives as a spreadsheet row (and an email).
 2. Verify it: check the link, confirm the tool/status, find coordinates for
    site-level entries (any geocoder; decimal lat/long).
 3. Add a row to `data/raw/site_data.csv` or `data/raw/national_data.csv`
    matching the existing columns.
 4. Re-run the two scripts above; fix any country-name warning.
 5. Commit and push — the live site picks it up on the next deploy.
+6. Mark the row's "Reviewed?" and "Added to map?" columns so the sheet
+   doubles as the queue rather than just a log.
