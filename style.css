@@ -71,8 +71,11 @@ html, body {
   gap: 12px;
 }
 
+/* Taller than the old mark because this version sets "WISE Scales.org"
+   beneath the droplets — at the previous 30px that wordmark rendered about
+   6px tall and was unreadable. */
 #brand-logo {
-  height: 30px;
+  height: 60px;
   width: auto;
   flex-shrink: 0;
 }
