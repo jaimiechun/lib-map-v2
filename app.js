@@ -488,7 +488,7 @@
     statsEl.innerHTML =
       `<span><b>${total}</b> countries</span>` +
       `<span><b>${withData}</b> with completed data</span>` +
-      `<span><b>${plannedOnly}</b> planned only</span>`;
+      `<span><b>${plannedOnly}</b> planned</span>`;
   }
 
   // One shared tool checklist (used regardless of which status is active)
