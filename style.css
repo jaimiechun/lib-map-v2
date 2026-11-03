@@ -640,7 +640,7 @@ html, body {
 
 /* Status now sits below the SCALE list, so it needs the same separating
    rule the SCALE header has — otherwise it reads as part of that block. */
-#tools-learn-more + .filter-subtitle {
+#tool-list + .filter-subtitle {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--border);
