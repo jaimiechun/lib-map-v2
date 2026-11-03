@@ -41,6 +41,14 @@ def build_land_features():
     return features
 
 
+def build_lakes():
+    """Natural Earth 110m lakes — the ~two dozen that read at world scale
+    (the Great Lakes, Victoria, Baikal, Tanganyika, Titicaca and so on).
+    Drawn in the sea colour on top of the land so they punch through it."""
+    raw = json.loads((DATA / "raw" / "lakes.geo.json").read_text())
+    return {"type": "FeatureCollection", "features": raw["features"]}
+
+
 def main():
     countries = json.loads((DATA / "countries.json").read_text())
     rep_iso3 = {c["iso3"] for c in countries if c["nationallyRepresentative"]}
@@ -56,6 +64,11 @@ def main():
     world_path = DATA / "world.js"
     world_path.write_text("window.WISE_WORLD = " + json.dumps(world) + ";\n")
     print(f"Wrote {len(world['features'])} world landmass features to {world_path}")
+
+    lakes = build_lakes()
+    lakes_path = DATA / "lakes.js"
+    lakes_path.write_text("window.WISE_LAKES = " + json.dumps(lakes) + ";\n")
+    print(f"Wrote {len(lakes['features'])} lakes to {lakes_path}")
 
     missing = sorted(rep_iso3 - border_features.keys())
     print(f"Wrote {len(border_features)} country borders to {js_path}")

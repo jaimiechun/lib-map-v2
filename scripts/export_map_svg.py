@@ -132,6 +132,7 @@ def main():
     countries = json.loads((DATA / "countries.json").read_text())
     world = load_js_global("data/world.js", "WISE_WORLD")
     borders = load_js_global("data/borders.js", "WISE_BORDERS")
+    lakes = load_js_global("data/lakes.js", "WISE_LAKES")
     rep_iso3 = {f["id"] for f in borders["features"]}
 
     pts = []
@@ -199,6 +200,13 @@ def main():
         if f["id"] in rep_iso3:
             out.append(f'<path d="{path_for(f["geometry"])}" fill="{LAND}"/>')
         out.append(f'<path d="{path_for(f["geometry"])}" fill="{fill}"{opacity}/>')
+    # Lakes filled in the sea colour, with a matching hairline stroke to
+    # round off the polygon corners.
+    for f in lakes["features"]:
+        out.append(
+            f'<path d="{path_for(f["geometry"])}" fill="{SEA}" stroke="{SEA}" '
+            f'stroke-width="{max(0.4, scale * 0.0012):.2f}" stroke-linejoin="round"/>'
+        )
     out.append("</g>")
 
     out.append('<g stroke="none">')

@@ -2,6 +2,9 @@
   const STATUS_LABEL = { completed: "Completed", planned: "Planned", mixed: "In progress" };
   const TEAL = "#0e7c7b";
   const REP_FILL = "#82AEF3";
+  // Sea colour, shared by the 2D map background (see #map in style.css),
+  // the lakes drawn on top of the land, and the globe's sphere.
+  const SEA = "#20B2AA";
 
   // Full known tool list (mirrors the Submit Data form's Tool dropdown), so
   // the "See on map" filter always offers every tool as an option even
@@ -141,6 +144,25 @@
         direction: "center",
         className: "country-label",
       });
+    },
+  }).addTo(map);
+
+  // Major lakes, filled in the sea colour so they read as water cut out of
+  // the land. Geometry is Natural Earth 50m rather than 110m — at 110m a
+  // lake like Victoria is a 19-point polygon, which draws as a blocky
+  // lozenge; 50m gives it ~318 points and a true shoreline. smoothFactor 0
+  // stops Leaflet simplifying those points away again at low zoom, and the
+  // round joins keep the remaining corners soft.
+  const lakeLayer = L.geoJSON(window.WISE_LAKES, {
+    interactive: false,
+    smoothFactor: 0,
+    style: {
+      fillColor: SEA,
+      fillOpacity: 1,
+      color: SEA,
+      weight: 0.6,
+      lineJoin: "round",
+      lineCap: "round",
     },
   }).addTo(map);
 
@@ -327,9 +349,10 @@
         if (country) layer.on("click", () => showDetail(country));
       },
     }).addTo(map);
-    // Shading sits below the markers but above the land basemap.
+    // Stacking, bottom to top: land, country shading, lakes, then markers.
     borderLayer.bringToBack();
     worldLayer.bringToBack();
+    lakeLayer.bringToFront();
   }
 
   function renderMarkers() {
@@ -861,6 +884,7 @@
   // over the whole globe and the ocean disappears. Leaflet renders the same
   // data planar and doesn't care, so this is fixed up for the globe only.
   let globeFeatures = null;
+  let globeLakes = null;
   function rewindForSphere(features) {
     return features.map((f) => {
       const geom = f.geometry;
@@ -931,6 +955,19 @@
         ctx.fillStyle = "rgba(130, 174, 243, 0.35)";
         ctx.fill();
       }
+      ctx.stroke();
+    });
+
+    // Lakes filled in the sea colour, matching the 2D map. The stroke is
+    // the same colour and simply softens the polygon's corners.
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = "#20B2AA";
+    ctx.lineJoin = "round";
+    globeLakes.forEach((f) => {
+      ctx.beginPath();
+      path(f);
+      ctx.fillStyle = "#20B2AA";
+      ctx.fill();
       ctx.stroke();
     });
 
@@ -1049,6 +1086,7 @@
         globeEl.appendChild(canvas);
         const ctx = canvas.getContext("2d");
         globeFeatures = rewindForSphere(window.WISE_WORLD.features);
+        globeLakes = rewindForSphere(window.WISE_LAKES.features);
         const projection = d3.geoOrthographic().clipAngle(90).precision(0.3);
         globe = {
           canvas,
