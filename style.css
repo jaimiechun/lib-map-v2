@@ -71,11 +71,12 @@ html, body {
   gap: 12px;
 }
 
-/* Taller than the old mark because this version sets "WISE Scales.org"
-   beneath the droplets — at the previous 30px that wordmark rendered about
-   6px tall and was unreadable. */
+/* Droplets only, no wordmark: a lockup with type under it can't be read at
+   header size without making the header noticeably deeper. The full
+   WISE Scales.org logo lives in assets/logo-wordmark.png for use somewhere
+   it can be shown large enough to read. */
 #brand-logo {
-  height: 60px;
+  height: 30px;
   width: auto;
   flex-shrink: 0;
 }
@@ -396,7 +397,7 @@ html, body {
 #panel-body {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   overflow-y: auto;
   min-height: 0;
 }
@@ -503,13 +504,21 @@ html, body {
   color: var(--muted);
 }
 
-/* Section headings (sentence case, like "Health Overview") */
+/* ----- Filter panel type scale -------------------------------------
+   Three deliberate levels, so the eye can skip straight to whichever it
+   needs:
+     1. "Filter by"  — the one sentence-case heading, 13px semibold ink
+     2. GROUP LABELS — 10px uppercase tracked, faint: signposts, not content
+     3. controls     — 12.5px, the only things at full ink that you act on
+   Secondary actions (check all / learn more) sit below all three at 11px.
+   ------------------------------------------------------------------- */
 .filter-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
   color: var(--ink);
   text-transform: none;
+  margin-bottom: 2px;
 }
 
 #tools-header {
@@ -517,9 +526,7 @@ html, body {
   align-items: baseline;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 10px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
+  margin-top: 14px;
 }
 
 /* The scale heading carries .filter-subtitle like Sample Type and Status,
@@ -531,7 +538,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--faint);
 }
 
@@ -540,7 +547,7 @@ html, body {
   background: none;
   padding: 0;
   font-family: inherit;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--muted);
   cursor: pointer;
@@ -548,17 +555,16 @@ html, body {
 
 .tools-bulk button:hover { color: var(--ink); }
 
-/* Small caps with letter-spacing: at 12px regular these labels blended into
-   the controls under them, so the group headings now read as headings
-   without going back to a heavier weight that would compete with
-   "Filter by". */
+/* Level 2. Tracked uppercase at a small size reads as a signpost without
+   needing weight or darkness, which keeps the controls underneath the most
+   prominent thing in each group. */
 .filter-subtitle {
-  font-size: 10.5px;
-  color: var(--muted);
-  font-weight: 500;
+  font-size: 10px;
+  color: var(--faint);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin: 10px 0 0;
+  letter-spacing: 0.08em;
+  margin: 14px 0 0;
 }
 
 /* Segmented pills (Week / Month style) */
@@ -592,6 +598,7 @@ html, body {
   background: var(--pill);
   border-color: var(--border-strong);
   color: var(--ink);
+  font-weight: 600;
 }
 
 /* Scale checklist */
@@ -605,8 +612,8 @@ html, body {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 13px;
-  line-height: 1.3;
+  font-size: 12.5px;
+  line-height: 1.35;
   color: var(--ink);
   cursor: pointer;
   padding: 5px 6px;
@@ -634,10 +641,10 @@ html, body {
 
 #tools-learn-more {
   display: block;
-  margin-top: 4px;
-  padding-top: 10px;
+  margin-top: 14px;
+  padding-top: 11px;
   border-top: 1px solid var(--border);
-  font-size: 12.5px;
+  font-size: 11.5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -652,13 +659,10 @@ html, body {
   text-decoration-color: var(--ink);
 }
 
-/* Status now sits below the SCALE list, so it needs the same separating
-   rule the SCALE header has — otherwise it reads as part of that block. */
-#tool-list + .filter-subtitle {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-}
+/* Groups are separated by the label's own top margin rather than rules:
+   with three groups, three hairlines chopped the panel into slabs and
+   competed with the panel's own border. */
+#tool-list + .filter-subtitle { margin-top: 16px; }
 
 /* ---------- Floating map buttons ---------- */
 #expand-btn,
