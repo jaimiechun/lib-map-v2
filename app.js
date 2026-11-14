@@ -11,8 +11,8 @@
   // before any data using it has been added.
   const KNOWN_TOOLS = [
     "HWISE-12",
-    "HWISE-8",
     "HWISE-4",
+    "HWISE-OTHER",
     "IWISE-12",
     "IWISE-4",
     "Healthcare Facility (HCF) - WISE",
@@ -22,10 +22,11 @@
   // Map dots, tool badges, and filter swatches are all colored per tool.
   const TOOL_COLORS = {
     "HWISE-12": "#00AEE5",
-    // Placeholder: sits between the two HWISE blues/greens so it reads as
-    // part of that family. Swap for the team's chosen hex when they pick one.
-    "HWISE-8": "#6FD44E",
     "HWISE-4": "#00DF30",
+    // Adapted HWISE variants that aren't one of the fixed item counts.
+    // Placeholder: sits between the HWISE blue and green so it reads as part
+    // of that family. Swap for the team's chosen hex when they pick one.
+    "HWISE-OTHER": "#6FD44E",
     "IWISE-12": "#00DDDC",
     "IWISE-4": "#0078C4",
     "Healthcare Facility (HCF) - WISE": "#00C6A1",
