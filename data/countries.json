@@ -205,6 +205,19 @@
     "entries": [
       {
         "level": "site",
+        "location": "Plateau-Central-Ganzourgou",
+        "lat": 12.238056,
+        "lng": -0.785556,
+        "tool": "HWISE-12",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": "https://www.helvetas.org/en/switzerland",
+        "contact": "john.brogan@helvetas.org"
+      },
+      {
+        "level": "site",
         "location": "Humanitarian sites in country, unknown",
         "lat": 12.2383,
         "lng": -1.5616,
@@ -228,19 +241,6 @@
         "dates": null,
         "link": null,
         "contact": "james@james-elliot.co.uk"
-      },
-      {
-        "level": "site",
-        "location": "Plateau-Central-Ganzourgou",
-        "lat": 12.238056,
-        "lng": -0.785556,
-        "tool": "HWISE-12",
-        "status": "Completed",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": null,
-        "link": "https://www.helvetas.org/en/switzerland",
-        "contact": "john.brogan@helvetas.org"
       },
       {
         "level": "site",
@@ -278,19 +278,6 @@
     "status": "mixed",
     "nationallyRepresentative": true,
     "entries": [
-      {
-        "level": "site",
-        "location": "Khulna District",
-        "lat": 22.8456,
-        "lng": 89.5403,
-        "tool": "HWISE-12",
-        "status": "Ongoing",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": "Feb 2023-ongoing",
-        "link": "https://bmjopen.bmj.com/content/14/4/e079451",
-        "contact": null
-      },
       {
         "level": "site",
         "location": "Chakaria",
@@ -371,19 +358,6 @@
       },
       {
         "level": "site",
-        "location": "Dhaka",
-        "lat": 23.777176,
-        "lng": 90.399452,
-        "tool": "HWISE-12",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": null,
-        "link": "https://www.impact-initiatives.org/what-we-do/reach/",
-        "contact": "geneva@impact-initiatives.org"
-      },
-      {
-        "level": "site",
         "location": "Satkhira",
         "lat": 22.7217,
         "lng": 89.0682,
@@ -446,6 +420,32 @@
         "dates": "2024",
         "link": "https://www.helvetas.org/en/switzerland",
         "contact": "john.brogan@helvetas.org"
+      },
+      {
+        "level": "site",
+        "location": "Khulna District",
+        "lat": 22.8456,
+        "lng": 89.5403,
+        "tool": "HWISE-12",
+        "status": "Ongoing",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "Feb 2023-ongoing",
+        "link": "https://bmjopen.bmj.com/content/14/4/e079451",
+        "contact": null
+      },
+      {
+        "level": "site",
+        "location": "Dhaka",
+        "lat": 23.777176,
+        "lng": 90.399452,
+        "tool": "HWISE-12",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": "https://www.impact-initiatives.org/what-we-do/reach/",
+        "contact": "geneva@impact-initiatives.org"
       },
       {
         "level": "site",
@@ -939,19 +939,6 @@
       },
       {
         "level": "site",
-        "location": "120 Health Zones in the East",
-        "lat": -3.37,
-        "lng": 29.14,
-        "tool": "HWISE-4",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": "2025",
-        "link": "https://www.impact-initiatives.org/where-we-work/democratic-republic-of-the-congo/?pcountry=democratic-republic-of-the-congo&dates=Date&ptype=dataset&initiative=reach",
-        "contact": "geneva@impact-initiatives.org"
-      },
-      {
-        "level": "site",
         "location": "Kasai Oriental Province",
         "lat": -6.0336,
         "lng": 23.5729,
@@ -962,6 +949,19 @@
         "dates": null,
         "link": "https://doi.org/10.1371/journal.pone.0283019",
         "contact": null
+      },
+      {
+        "level": "site",
+        "location": "120 Health Zones in the East",
+        "lat": -3.37,
+        "lng": 29.14,
+        "tool": "HWISE-4",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "2025",
+        "link": "https://www.impact-initiatives.org/where-we-work/democratic-republic-of-the-congo/?pcountry=democratic-republic-of-the-congo&dates=Date&ptype=dataset&initiative=reach",
+        "contact": "geneva@impact-initiatives.org"
       },
       {
         "level": "national",
@@ -1354,32 +1354,6 @@
       },
       {
         "level": "site",
-        "location": "Humanitarian sites in country, unknown",
-        "lat": 9.016667,
-        "lng": 38.75,
-        "tool": "HWISE-4",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": "2025",
-        "link": "https://www.impact-initiatives.org/where-we-work/democratic-republic-of-the-congo/?pcountry=ethiopia&dates=Date&ptype=dataset&initiative=reach",
-        "contact": "geneva@impact-initiatives.org"
-      },
-      {
-        "level": "site",
-        "location": "Sidama region, southern Ethiopia",
-        "lat": 6.5831,
-        "lng": 38.569,
-        "tool": "HWISE-12",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": null,
-        "link": null,
-        "contact": "eadane@ymail.com"
-      },
-      {
-        "level": "site",
         "location": "South Ethiopia-Gamo",
         "lat": 6.25,
         "lng": 37.0,
@@ -1429,6 +1403,32 @@
         "dates": "2024",
         "link": "https://en.heks.ch/",
         "contact": "john.brogan@helvetas.org"
+      },
+      {
+        "level": "site",
+        "location": "Humanitarian sites in country, unknown",
+        "lat": 9.016667,
+        "lng": 38.75,
+        "tool": "HWISE-4",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "2025",
+        "link": "https://www.impact-initiatives.org/where-we-work/democratic-republic-of-the-congo/?pcountry=ethiopia&dates=Date&ptype=dataset&initiative=reach",
+        "contact": "geneva@impact-initiatives.org"
+      },
+      {
+        "level": "site",
+        "location": "Sidama region, southern Ethiopia",
+        "lat": 6.5831,
+        "lng": 38.569,
+        "tool": "HWISE-12",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": null,
+        "contact": "eadane@ymail.com"
       },
       {
         "level": "site",
@@ -1961,19 +1961,6 @@
       },
       {
         "level": "site",
-        "location": "Humanitarian sites in country, unknown",
-        "lat": 18.594167,
-        "lng": -72.307222,
-        "tool": "HWISE-4",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": "2025",
-        "link": "https://www.impact-initiatives.org/where-we-work/democratic-republic-of-the-congo/?pcountry=haiti&dates=Date&ptype=dataset&initiative=reach",
-        "contact": "geneva@impact-initiatives.org"
-      },
-      {
-        "level": "site",
         "location": "National",
         "lat": 19.7,
         "lng": -71.8,
@@ -1997,6 +1984,19 @@
         "dates": "Sep-23",
         "link": null,
         "contact": "scollin4@tulane.edu"
+      },
+      {
+        "level": "site",
+        "location": "Humanitarian sites in country, unknown",
+        "lat": 18.594167,
+        "lng": -72.307222,
+        "tool": "HWISE-4",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "2025",
+        "link": "https://www.impact-initiatives.org/where-we-work/democratic-republic-of-the-congo/?pcountry=haiti&dates=Date&ptype=dataset&initiative=reach",
+        "contact": "geneva@impact-initiatives.org"
       },
       {
         "level": "national",
@@ -2137,19 +2137,6 @@
       },
       {
         "level": "site",
-        "location": "various charity: water sites",
-        "lat": 20.5937,
-        "lng": 78.9623,
-        "tool": "HWISE-12",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": "Expected Mid/Late 2025",
-        "link": "https://www.charitywater.org/",
-        "contact": "scott.miller@charitywater.org"
-      },
-      {
-        "level": "site",
         "location": "Mumbai, India",
         "lat": 19.076,
         "lng": 72.8777,
@@ -2160,6 +2147,19 @@
         "dates": null,
         "link": "https://www.cambridge.org/core/journals/global-mental-health/article/associations-between-water-insecurity-and-mental-health-outcomes-among-lesbian-gay-bisexual-transgender-and-queer-persons-in-bangkok-thailand-and-mumbai-india-crosssectional-survey-findings/71908CF1B32FDDA97385DB195F0CD0F6",
         "contact": null
+      },
+      {
+        "level": "site",
+        "location": "various charity: water sites",
+        "lat": 20.5937,
+        "lng": 78.9623,
+        "tool": "HWISE-12",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "Expected Mid/Late 2025",
+        "link": "https://www.charitywater.org/",
+        "contact": "scott.miller@charitywater.org"
       },
       {
         "level": "national",
@@ -2379,32 +2379,6 @@
       },
       {
         "level": "site",
-        "location": "2 camps in 4 counties in the north",
-        "lat": -1.28333,
-        "lng": 36.81667,
-        "tool": "HWISE-4",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": "2025",
-        "link": "https://www.impact-initiatives.org/where-we-work/democratic-republic-of-the-congo/?pcountry=kenya&dates=Date&ptype=dataset&initiative=reach",
-        "contact": "geneva@impact-initiatives.org"
-      },
-      {
-        "level": "site",
-        "location": "Humanitarian sites in country, unknown",
-        "lat": -1.266667,
-        "lng": 36.8,
-        "tool": "HWISE-4",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": "2025",
-        "link": "https://www.impact-initiatives.org/where-we-work/democratic-republic-of-the-congo/?pcountry=kenya&dates=Date&ptype=dataset&initiative=reach",
-        "contact": "geneva@impact-initiatives.org"
-      },
-      {
-        "level": "site",
         "location": "Lake Turkana region",
         "lat": 3.6268,
         "lng": 36.0023,
@@ -2444,19 +2418,6 @@
       },
       {
         "level": "site",
-        "location": "various charity: water sites",
-        "lat": -0.0236,
-        "lng": 37.9062,
-        "tool": "HWISE-12",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": "Expected Mid/Late 2025",
-        "link": "https://www.charitywater.org/",
-        "contact": "scott.miller@charitywater.org"
-      },
-      {
-        "level": "site",
         "location": "Makueni County",
         "lat": -1.804,
         "lng": 37.7859,
@@ -2467,6 +2428,45 @@
         "dates": "December 2018 to March 2019 and June to August 2019",
         "link": null,
         "contact": "hp4113@wayne.edu"
+      },
+      {
+        "level": "site",
+        "location": "2 camps in 4 counties in the north",
+        "lat": -1.28333,
+        "lng": 36.81667,
+        "tool": "HWISE-4",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "2025",
+        "link": "https://www.impact-initiatives.org/where-we-work/democratic-republic-of-the-congo/?pcountry=kenya&dates=Date&ptype=dataset&initiative=reach",
+        "contact": "geneva@impact-initiatives.org"
+      },
+      {
+        "level": "site",
+        "location": "Humanitarian sites in country, unknown",
+        "lat": -1.266667,
+        "lng": 36.8,
+        "tool": "HWISE-4",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "2025",
+        "link": "https://www.impact-initiatives.org/where-we-work/democratic-republic-of-the-congo/?pcountry=kenya&dates=Date&ptype=dataset&initiative=reach",
+        "contact": "geneva@impact-initiatives.org"
+      },
+      {
+        "level": "site",
+        "location": "various charity: water sites",
+        "lat": -0.0236,
+        "lng": 37.9062,
+        "tool": "HWISE-12",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "Expected Mid/Late 2025",
+        "link": "https://www.charitywater.org/",
+        "contact": "scott.miller@charitywater.org"
       },
       {
         "level": "national",
@@ -3410,19 +3410,6 @@
       },
       {
         "level": "site",
-        "location": "unknown",
-        "lat": -13.98,
-        "lng": 33.79,
-        "tool": "HWISE-12",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": null,
-        "link": "https://www.jica.go.jp/english/",
-        "contact": "ogata.ryuji2@jica.go.jp"
-      },
-      {
-        "level": "site",
         "location": "Chirazulu",
         "lat": -15.681,
         "lng": 35.181,
@@ -3433,6 +3420,19 @@
         "dates": null,
         "link": null,
         "contact": "robert.dreibelbis@lshtm.ac.uk"
+      },
+      {
+        "level": "site",
+        "location": "unknown",
+        "lat": -13.98,
+        "lng": 33.79,
+        "tool": "HWISE-12",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": "https://www.jica.go.jp/english/",
+        "contact": "ogata.ryuji2@jica.go.jp"
       },
       {
         "level": "site",
@@ -3958,6 +3958,19 @@
       },
       {
         "level": "site",
+        "location": "Multiple sites",
+        "lat": 12.8797,
+        "lng": 121.774,
+        "tool": "HWISE-4",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": "https://www.unilever.com/news/hygiene-behaviour-change-coalition/",
+        "contact": "jaynie.vonk@oxfamnovib.nl"
+      },
+      {
+        "level": "site",
         "location": "Island Groups: Luzon, Visayas, and Mindanao",
         "lat": 10.3527,
         "lng": 123.9136,
@@ -3981,19 +3994,6 @@
         "dates": "2023-2030",
         "link": "https://opsusc.org/lcsfc-overview-whole.php",
         "contact": "josh.miller@unc.edu"
-      },
-      {
-        "level": "site",
-        "location": "Multiple sites",
-        "lat": 12.8797,
-        "lng": 121.774,
-        "tool": "HWISE-4",
-        "status": "Completed",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": null,
-        "link": "https://www.unilever.com/news/hygiene-behaviour-change-coalition/",
-        "contact": "jaynie.vonk@oxfamnovib.nl"
       },
       {
         "level": "national",
@@ -4093,19 +4093,6 @@
       {
         "level": "site",
         "location": "Gaza",
-        "lat": 31.5017,
-        "lng": 34.4668,
-        "tool": "HWISE-12",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": null,
-        "link": "https://en.heks.ch",
-        "contact": "john.brogan@helvetas.org"
-      },
-      {
-        "level": "site",
-        "location": "Gaza",
         "lat": 31.516667,
         "lng": 34.45,
         "tool": "HWISE-12",
@@ -4128,6 +4115,19 @@
         "dates": "July, June, April, March, February of 2025",
         "link": "https://response.reliefweb.int/palestine/water-sanitation-and-hygiene",
         "contact": null
+      },
+      {
+        "level": "site",
+        "location": "Gaza",
+        "lat": 31.5017,
+        "lng": 34.4668,
+        "tool": "HWISE-12",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": null,
+        "link": "https://en.heks.ch",
+        "contact": "john.brogan@helvetas.org"
       },
       {
         "level": "site",
@@ -4630,6 +4630,29 @@
         "source": "UNICEF 2025",
         "dates": null,
         "link": null,
+        "contact": null
+      }
+    ]
+  },
+  {
+    "iso3": "SVK",
+    "name": "Slovakia",
+    "lat": 48.66666666,
+    "lng": 19.5,
+    "status": "completed",
+    "nationallyRepresentative": false,
+    "entries": [
+      {
+        "level": "site",
+        "location": "Košice Region",
+        "lat": 48.7164,
+        "lng": 21.2611,
+        "tool": "HWISE-OTHER",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "October 2024–May 2025",
+        "link": "https://doi.org/10.1016/j.wss.2026.100346",
         "contact": null
       }
     ]
@@ -5336,6 +5359,19 @@
       },
       {
         "level": "site",
+        "location": "Puerto Rico",
+        "lat": 18.2208,
+        "lng": -66.5901,
+        "tool": "HWISE-12",
+        "status": "Completed",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "May 2022-Feb 2023",
+        "link": "https://www.frontiersin.org/journals/water/articles/10.3389/frwa.2024.1357921/full",
+        "contact": "tntelson@iastate.edu"
+      },
+      {
+        "level": "site",
         "location": "Evanston, IL",
         "lat": 42.049618,
         "lng": -87.675676,
@@ -5372,19 +5408,6 @@
         "dates": "November 2025",
         "link": null,
         "contact": "scollin4@tulane.edu"
-      },
-      {
-        "level": "site",
-        "location": "Puerto Rico",
-        "lat": 18.2208,
-        "lng": -66.5901,
-        "tool": "HWISE-12",
-        "status": "Completed",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": "May 2022-Feb 2023",
-        "link": "https://www.frontiersin.org/journals/water/articles/10.3389/frwa.2024.1357921/full",
-        "contact": "tntelson@iastate.edu"
       },
       {
         "level": "site",
@@ -5792,19 +5815,6 @@
     "entries": [
       {
         "level": "site",
-        "location": "KwaZulu-Natal Province",
-        "lat": -28.5306,
-        "lng": 30.8958,
-        "tool": "IWISE-12",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": "2025",
-        "link": "https://app.dimensions.ai/details/publication/pub.1153377941",
-        "contact": null
-      },
-      {
-        "level": "site",
         "location": "Magareng Local Municipality",
         "lat": -28.166667,
         "lng": 24.833333,
@@ -5814,6 +5824,19 @@
         "source": null,
         "dates": "2021",
         "link": "https://doi.org/10.1016/j.landusepol.2023.106878",
+        "contact": null
+      },
+      {
+        "level": "site",
+        "location": "KwaZulu-Natal Province",
+        "lat": -28.5306,
+        "lng": 30.8958,
+        "tool": "IWISE-12",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "2025",
+        "link": "https://app.dimensions.ai/details/publication/pub.1153377941",
         "contact": null
       },
       {
@@ -5839,19 +5862,6 @@
     "status": "mixed",
     "nationallyRepresentative": true,
     "entries": [
-      {
-        "level": "site",
-        "location": "Choma District, Southern Province",
-        "lat": -16.666667,
-        "lng": 27.166667,
-        "tool": "HWISE-12",
-        "status": "Planned",
-        "nationallyRepresentative": false,
-        "source": null,
-        "dates": "2024",
-        "link": "https://hope.edu/research/global-water-research-institute/",
-        "contact": "best@hope.edu"
-      },
       {
         "level": "site",
         "location": "Lusaka",
@@ -5929,6 +5939,19 @@
         "dates": null,
         "link": null,
         "contact": "robert.dreibelbis@lshtm.ac.uk"
+      },
+      {
+        "level": "site",
+        "location": "Choma District, Southern Province",
+        "lat": -16.666667,
+        "lng": 27.166667,
+        "tool": "HWISE-12",
+        "status": "Planned",
+        "nationallyRepresentative": false,
+        "source": null,
+        "dates": "2024",
+        "link": "https://hope.edu/research/global-water-research-institute/",
+        "contact": "best@hope.edu"
       },
       {
         "level": "national",
